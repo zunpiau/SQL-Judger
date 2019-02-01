@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: SQLJudger
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sql_judger
+    password: 1122
+    username: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+  jpa:
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  resources:
+    chain:
+      cache: false
+  data:
+    rest:
+      base-path: api
+admin:
+  name: admin
+  password: 123456
+jwt:
+  header: Authorization
+  secret: mySecret
+  expiration: 600

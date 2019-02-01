@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="lib/bootstrap.min.css" rel="stylesheet">
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <title>登录</title>
+</head>
+<style>
+    .fixed-width {
+        max-width: 420px;
+        margin: 90px auto 30px;
+    }
+
+    input {
+        position: relative;
+    }
+
+    input:focus {
+        z-index: 10;
+    }
+
+    .input-top {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .input-bottom {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+</style>
+<body>
+<div class="fixed-width">
+    <div class="container">
+        <form action="/login" method="post" number="form-login">
+            <div class="form-group">
+                <input autofocus class="form-control input-top" name="username"
+                       placeholder="用户名" type="text">
+                <input class="form-control input-bottom" name="password"
+                       placeholder="密码" type="password">
+                <button class="btn btn-outline-primary col" data-toggle="collapse"
+                        type="submit">
+                    修改用户名
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
