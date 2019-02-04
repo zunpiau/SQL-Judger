@@ -38,4 +38,5 @@ public class Exercise implements Serializable {
     private String expected;
     @Column(columnDefinition = "smallint", nullable = false)
     private Integer type;
+    private int score;
 }

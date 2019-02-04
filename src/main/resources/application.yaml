@@ -26,8 +26,8 @@ spring:
       base-path: api
 admin:
   name: admin
-  password: 123456
+  password: 1234
 jwt:
   header: Authorization
   secret: mySecret
-  expiration: 600
+  expiration: 86400

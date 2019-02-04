@@ -52,13 +52,11 @@ public class SecurityConfig {
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
             registry.addInterceptor(new HttpBasicInterceptor(adminName, adminPassword))
-                    .addPathPatterns("/admin/**");
+                    .addPathPatterns("/admin/**", "/view/admin.html");
             registry.addInterceptor(new JwtInterceptor(jwtVerifier, "student"))
-                    .addPathPatterns("/student/**");
+                    .addPathPatterns("/student/**", "/view/student.html");
             registry.addInterceptor(new JwtInterceptor(jwtVerifier, "teacher"))
-                    .addPathPatterns("/teacher/**");
-            registry.addInterceptor(new JwtInterceptor(jwtVerifier, "student"))
-                    .addPathPatterns("/student/**");
+                    .addPathPatterns("/teacher/**", "/view/teacher.html");
         }
     }
 }

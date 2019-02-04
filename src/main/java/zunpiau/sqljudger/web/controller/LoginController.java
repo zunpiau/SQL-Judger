@@ -4,8 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import zunpiau.sqljudger.web.Repository.StudentRepository;
 import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.domain.User;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -53,22 +56,21 @@ public class LoginController {
 
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<?> login(String number, String password) throws Exception {
+    public ResponseEntity<?> login(Long number, String password, String type) throws Exception {
         if (StringUtils.isEmpty(number) || StringUtils.isEmpty(password)) {
             return ResponseEntity.badRequest().build();
         }
-//        if ("admin".equals(username)) {
-//            if (encoder.matches(password, adminPassword)) {
-//
-//            }
         Optional<? extends User> optionalUser;
         String role;
-        if (number.startsWith("1")) {
+        String location;
+        if ("teacher".equals(type)) {
             optionalUser = teacherRepository.findById(number);
             role = "teacher";
+            location = "/view/teacher.html";
         } else {
             optionalUser = studentRepository.findById(number);
             role = "student";
+            location = "/view/student.html";
         }
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -76,10 +78,16 @@ public class LoginController {
                 String token = JWT.create()
                         .withClaim("number", user.getNumber())
                         .withClaim("name", user.getName())
-                        .withClaim("role", role)
                         .withExpiresAt(createDateAfter(expiration))
                         .sign(algorithm);
-                return ResponseEntity.ok(BaseResponse.ok(token));
+                String cookie = ResponseCookie.from(role, token)
+                        .maxAge(Duration.ofDays(1))
+                        .httpOnly(true)
+                        .build()
+                        .toString();
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie)
+                        .body(BaseResponse.ok(location));
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

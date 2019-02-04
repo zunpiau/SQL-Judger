@@ -2,9 +2,9 @@ package zunpiau.sqljudger.web.Repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import zunpiau.sqljudger.web.domain.Teacher;
+import zunpiau.sqljudger.web.domain.Teaching;
 
 @Repository
-public interface TeacherRepository extends CrudRepository<Teacher, Long> {
+public interface TeachingRepository extends CrudRepository<Teaching, Long>, EnhanceRepository<Teaching, Long> {
 
 }

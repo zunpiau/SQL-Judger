@@ -16,6 +16,10 @@ public class BaseResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
+    public static BaseResponse<?> ok() {
+        return new BaseResponse<>(200, null, null);
+    }
+
     public static <U> BaseResponse<U> ok(U data) {
         return new BaseResponse<>(200, null, data);
     }

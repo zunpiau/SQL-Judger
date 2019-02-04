@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
@@ -12,8 +14,8 @@ import javax.persistence.MappedSuperclass;
 public abstract class User {
 
     @Id
-    @Column(length = 10, nullable = false)
-    private String number;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long number;
     @Column(length = 16, nullable = false)
     private String name;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
