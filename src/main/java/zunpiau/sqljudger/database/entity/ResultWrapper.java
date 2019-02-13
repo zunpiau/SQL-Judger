@@ -1,17 +1,22 @@
 package zunpiau.sqljudger.database.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.sql.RowSet;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ResultWrapper {
 
-    RowSet rowSet;
-    int updateConut;
+    DataSet dataSet;
+    List<SimpleTable> tables;
 
+    public ResultWrapper(DataSet dataSet) {
+        this.dataSet = dataSet;
+    }
+
+    public ResultWrapper(List<SimpleTable> tables) {
+        this.tables = tables;
+    }
 }

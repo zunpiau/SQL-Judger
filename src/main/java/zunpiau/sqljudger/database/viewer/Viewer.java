@@ -9,13 +9,10 @@ import zunpiau.sqljudger.database.entity.Constraint;
 import zunpiau.sqljudger.database.entity.ForignKey;
 import zunpiau.sqljudger.database.entity.Index;
 import zunpiau.sqljudger.database.entity.PrimaryKey;
-import zunpiau.sqljudger.database.entity.ResultWrapper;
 import zunpiau.sqljudger.database.entity.SimpleTable;
 import zunpiau.sqljudger.database.entity.Table;
 
 import javax.annotation.Nullable;
-import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.RowSetProvider;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -145,25 +142,25 @@ public abstract class Viewer {
     }
 
     public List<Index> getIndexes(DatabaseMetaData metaData, String table) throws SQLException {
-        ResultSet resultSet = metaData.getIndexInfo(database, schema, table, false, false);
-        LinkedList<Index> list = new LinkedList<>();
-        while (resultSet.next()) {
-            String indexName = resultSet.getString("index_name");
-            final String columnName = resultSet.getString("column_name");
-            Index last;
-            // ResultSet order by INDEX_NAME, check the last element only.
-            if (!list.isEmpty() && (last = list.get(list.size() - 1)) != null && last.getName().equals(indexName)) {
-                last.getColumns().add(columnName);
-                return null;
-            } else {
-                LinkedList<String> columns = new LinkedList<>();
-                columns.add(columnName);
-                list.add(new Index(indexName, columns, "f".equals(resultSet.getString("non_unique")),
-                        resultSet.getInt("type")));
+        try (ResultSet resultSet = metaData.getIndexInfo(database, schema, table, false, false)) {
+            LinkedList<Index> list = new LinkedList<>();
+            while (resultSet.next()) {
+                String indexName = resultSet.getString("index_name");
+                final String columnName = resultSet.getString("column_name");
+                Index last;
+                // ResultSet order by INDEX_NAME, check the last element only.
+                if (!list.isEmpty() && (last = list.get(list.size() - 1)) != null && last.getName().equals(indexName)) {
+                    last.getColumns().add(columnName);
+                    return null;
+                } else {
+                    LinkedList<String> columns = new LinkedList<>();
+                    columns.add(columnName);
+                    list.add(new Index(indexName, columns, "f".equals(resultSet.getString("non_unique")),
+                            resultSet.getInt("type")));
+                }
             }
+            return list;
         }
-        JdbcUtils.closeResultSet(resultSet);
-        return list;
     }
 
     public List<List<String>> getData(String table) throws SQLException {
@@ -174,17 +171,6 @@ public abstract class Viewer {
 
     public void close() throws SQLException {
         JdbcUtils.closeConnection(connection);
-    }
-
-    public ResultWrapper excute(String sql) throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute(sql);
-        CachedRowSet rowSet = RowSetProvider.newFactory().createCachedRowSet();
-        rowSet.setReadOnly(true);
-        rowSet.populate(statement.getResultSet());
-        ResultWrapper wrapper = new ResultWrapper(rowSet, statement.getUpdateCount());
-        JdbcUtils.closeStatement(statement);
-        return wrapper;
     }
 
     private <T> List<T> foreachTables(SQLFunction<DatabaseMetaData, String, T> function) throws SQLException {

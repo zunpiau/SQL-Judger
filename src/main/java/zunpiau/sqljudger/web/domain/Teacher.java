@@ -21,4 +21,7 @@ public class Teacher extends User implements Serializable {
 
     private static final long serialVersionUID = 1503799770930337669L;
 
+    public Teacher(Long number) {
+        super(number);
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,10 +46,10 @@ public class AdminController {
     }
 
     @PostMapping(value = "teacher", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addTeacher(@RequestBody Teacher teacher) {
+    public BaseResponse<?> addTeacher(@RequestBody Teacher teacher) {
         teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
         Teacher save = teacherRepository.save(teacher);
-        return ResponseEntity.ok(save);
+        return BaseResponse.ok(save);
     }
 
     @GetMapping("teacher")
@@ -63,11 +64,7 @@ public class AdminController {
 
     @DeleteMapping("teacher/{number}")
     public BaseResponse<?> deleteTeacher(@PathVariable Long number) {
-        try {
-            teacherRepository.deleteById(number);
-        } catch (DataIntegrityViolationException e) {
-            return new BaseResponse<>(400, null, null);
-        }
+        teacherRepository.deleteById(number);
         return BaseResponse.ok();
     }
 
@@ -100,10 +97,9 @@ public class AdminController {
     }
 
     @PostMapping(value = "clazz", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addClazz(@RequestBody Clazz clazz) {
+    public BaseResponse<?> addClazz(@RequestBody Clazz clazz) {
         Clazz saved = clazzRepository.save(clazz);
-        System.out.println("saved = " + saved);
-        return ResponseEntity.ok(saved);
+        return BaseResponse.ok(saved);
     }
 
     @GetMapping("clazz")
@@ -118,11 +114,7 @@ public class AdminController {
 
     @DeleteMapping("clazz/{id}")
     public BaseResponse<?> deleteClazz(@PathVariable long id) {
-        try {
-            clazzRepository.deleteById(id);
-        } catch (DataIntegrityViolationException e) {
-            return new BaseResponse<>(400, null, null);
-        }
+        clazzRepository.deleteById(id);
         return BaseResponse.ok();
     }
 
@@ -151,5 +143,10 @@ public class AdminController {
     public BaseResponse<?> deleteTeaching(@PathVariable long id) {
         teachingRepository.deleteById(id);
         return BaseResponse.ok();
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public BaseResponse<?> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return new BaseResponse<>(400, e.getMessage(), null);
     }
 }

@@ -7,4 +7,7 @@ public interface EnhanceRepository<T, ID> {
     @Transactional
     T saveAndFresh(T t);
 
+    @Transactional
+    T merger(T t);
+
 }

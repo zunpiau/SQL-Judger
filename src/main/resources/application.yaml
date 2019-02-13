@@ -2,7 +2,7 @@ spring:
   application:
     name: SQLJudger
   datasource:
-    url: jdbc:postgresql://localhost:5432/sql_judger
+    jdbc-url: jdbc:postgresql://localhost:5432/sql_judger
     password: 1122
     username: postgres
     driver-class-name: org.postgresql.Driver
@@ -16,8 +16,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQL95Dialect
     show-sql: true
     generate-ddl: true
-    hibernate:
-      ddl-auto: update
+    database: default
   resources:
     chain:
       cache: false
@@ -31,3 +30,9 @@ jwt:
   header: Authorization
   secret: mySecret
   expiration: 86400
+judger:
+  datasource:
+    jdbc-url: jdbc:postgresql://localhost:5432/judger_test
+    password: 1122
+    username: postgres
+    driver-class-name: org.postgresql.Driver

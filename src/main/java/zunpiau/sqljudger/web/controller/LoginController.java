@@ -80,13 +80,18 @@ public class LoginController {
                         .withClaim("name", user.getName())
                         .withExpiresAt(createDateAfter(expiration))
                         .sign(algorithm);
-                String cookie = ResponseCookie.from(role, token)
+                String tokenCookie = ResponseCookie.from(role, token)
                         .maxAge(Duration.ofDays(1))
                         .httpOnly(true)
                         .build()
                         .toString();
+                String userCookie = ResponseCookie.from("user", number.toString())
+                        .maxAge(Duration.ofDays(1))
+                        .httpOnly(false)
+                        .build()
+                        .toString();
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.SET_COOKIE, cookie)
+                        .header(HttpHeaders.SET_COOKIE, tokenCookie, userCookie)
                         .body(BaseResponse.ok(location));
             }
         }

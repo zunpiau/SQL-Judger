@@ -2,6 +2,7 @@ package zunpiau.sqljudger.web.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -11,6 +12,7 @@ import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 @Data
+@NoArgsConstructor
 public abstract class User {
 
     @Id
@@ -21,5 +23,9 @@ public abstract class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(length = 60, nullable = false)
     private String password;
+
+    public User(Long number) {
+        this.number = number;
+    }
 
 }

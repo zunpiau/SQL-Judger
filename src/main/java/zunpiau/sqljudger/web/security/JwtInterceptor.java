@@ -2,6 +2,7 @@ package zunpiau.sqljudger.web.security;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class JwtInterceptor extends HandlerInterceptorAdapter {
 
+    public static final String ATTR_NUMBER = "attr_number";
     private final JWTVerifier jwtVerifier;
     private final String role;
 
@@ -29,7 +31,8 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
                     String token = cookie.getValue();
                     if (token != null) {
                         try {
-                            jwtVerifier.verify(token);
+                            final DecodedJWT jwt = jwtVerifier.verify(token);
+                            request.setAttribute(ATTR_NUMBER, jwt.getClaim("number").asLong());
                             return super.preHandle(request, response, handler);
                         } catch (JWTVerificationException ignore) {
                         }

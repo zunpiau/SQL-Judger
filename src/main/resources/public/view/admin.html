@@ -9,10 +9,11 @@
   <script src="/lib/bootstrap.min.js"></script>
   <script src="/lib/vue.js"></script>
   <script src="/lib/axios.js"></script>
+  <script src="/lib/commom.js"></script>
   <title>Admin</title>
 </head>
 <body>
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow-sm">
   <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL Judger</span>
 </nav>
 <div class="container-fluid">
@@ -32,11 +33,11 @@
             班级管理
           </a>
           <a class="nav-link" data-toggle="pill" href="#teaching" role="tab"
-             v-on:click.once="loadTeachings">
+             v-on:click.once="loadEntity('/admin/teaching', teachings);">
             授课管理
           </a>
           <a class="nav-link" data-toggle="pill" href="#student" role="tab"
-             v-on:click.once="loadStudents">
+             v-on:click.once="loadEntity('/admin/student', students)">
             学生管理
           </a>
           <a class="nav-link" data-toggle="pill" href="#contact" role="tab">
@@ -136,7 +137,7 @@
               <td>{{ clazz.grade }}</td>
               <td>{{ clazz.name }}</td>
               <td>
-                <button class="btn btn-danger btn-sm" v-on:click="deleteClazz(clazz.id, index)">
+                <button class="btn btn-danger btn-sm" v-on:click="deleteClazz(clazz)">
                   删除
                 </button>
               </td>
@@ -309,53 +310,6 @@
   </div>
 </div>
 <script>
-    function loadEntity(url, entities) {
-        console.log(url);
-        axios.get(url)
-            .then(response => {
-                entities.splice(0, entities.length, ...response.data)
-            })
-            .catch(reason => {
-                console.log(reason);
-            })
-    }
-
-    function deleteEntity(url, entities, entity) {
-        axios.delete(url)
-            .then(() => {
-                const index = entities.indexOf(entity);
-                if (index >= 0)
-                    entities.splice(index);
-            })
-            .catch(reason => {
-                console.log(reason);
-            });
-    }
-
-    function deleteEntityCallback(url, callback) {
-        axios.delete(url)
-            .then(callback)
-            .catch(reason => {
-                console.log(reason);
-            });
-    }
-
-    function addEntity(url, entity, entyties, modal) {
-        addEntityCallback(url, entity, response => {
-            modal.modal('hide');
-            console.log(response.data);
-            entyties.push(response.data);
-        });
-    }
-
-    function addEntityCallback(url, entity, callback) {
-        axios.post(url, entity)
-            .then(callback)
-            .catch(reason => {
-                console.log(reason);
-            });
-    }
-
     const mainVue = new Vue({
         el: '#vue_main',
         data() {
@@ -382,37 +336,24 @@
             }
         },
         methods: {
+            loadEntity(url, entities) {
+                console.log(entities);
+                loadEntity(url, entities)
+            },
             loadTeachers() {
                 loadEntity('/admin/teacher', this.teachers)
             },
             deleteTeacher(teacher) {
-                deleteEntityCallback(`/admin/teacher/${teacher.number}`, (response) => {
-                    if (response.data.status === 200) {
-                        this.teachers = this.teachers.filter((e) => e !== teacher)
-                    } else {
-                        alert("无法删除，已被其他对象引用");
-                    }
-                });
+                deleteEntity(`/admin/teacher/${teacher.number}`, this.teachers, teacher);
             },
             addTeacher() {
                 addEntity('/admin/teacher', this.teacher, this.teachers, $('#teacherModal'));
-            },
-            loadStudents() {
-                loadEntity('/admin/student', this.students);
             },
             deleteStudent(student) {
                 deleteEntity(`/admin/student/${student.number}`, this.students, student);
             },
             addStudent() {
-                addEntityCallback('/admin/student', this.student, response => {
-                    console.log(response.data);
-                    if (response.data.status === 200) {
-                        $('#studentModal').modal('hide');
-                        this.students.push(response.data.data)
-                    } else {
-                        alert(response.data.msg);
-                    }
-                });
+                addEntity('/admin/student', this.student, this.students, $('#studentModal'));
             },
             loadClazzs() {
                 loadEntity('/admin/clazz', this.clazzs);
@@ -423,21 +364,11 @@
             addClazz() {
                 addEntity('/admin/clazz', this.clazz, this.clazzs, $('#clazzModal'));
             },
-            loadTeachings() {
-                loadEntity('/admin/teaching', this.teachings);
-            },
             deleteTeaching(teaching) {
                 deleteEntity(`/admin/teaching/${teaching.id}`, this.teachings, teaching);
             },
             addTeaching() {
-                addEntityCallback('/admin/teaching', this.teaching, response => {
-                    if (response.data.status === 200) {
-                        $('#teachingModal').modal('hide');
-                        this.teachings.push(response.data.data);
-                    } else {
-                        alert(response.data.msg);
-                    }
-                });
+                addEntity('/admin/teaching', this.teaching, this.teachings, $('#teachingModal'));
             }
         }
     });

@@ -20,6 +20,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Clazz implements Serializable {
 
+    public Clazz(Long id) {
+        this.id = id;
+    }
+
     private static final long serialVersionUID = 4081440583259227435L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

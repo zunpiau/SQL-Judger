@@ -21,4 +21,9 @@ public class EnhanceRepositoryImpl<T, ID> implements EnhanceRepository<T, ID> {
         entityManager.refresh(t);
         return t;
     }
+
+    @Override
+    public T merger(T t) {
+        return entityManager.merge(t);
+    }
 }
