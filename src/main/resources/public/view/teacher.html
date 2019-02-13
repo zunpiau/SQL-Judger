@@ -251,6 +251,9 @@
       </div>
       <div class="tab-pane fade show" id="exam" role="tabpanel">
         <h2 class="h2 mb-3">考试安排</h2>
+        <div v-if=" this.exams.length === 0">
+          <p>当前没有考试</p>
+        </div>
         <div class="card mb-5 shadow-sm" v-for="exam in exams">
           <div class="card-header">
             <span class="h4">{{ exam.title }}</span>

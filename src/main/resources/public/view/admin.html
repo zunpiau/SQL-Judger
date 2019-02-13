@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <link href="/lib/sidebar.css" rel="stylesheet">
   <link href="/lib/bootstrap.min.css" rel="stylesheet">
+  <link href="/lib/sidebar.css" rel="stylesheet">
   <script src="/lib/jquery.min.js"></script>
   <script src="/lib/bootstrap.min.js"></script>
   <script src="/lib/vue.js"></script>
@@ -40,25 +40,18 @@
              v-on:click.once="loadEntity('/admin/student', students)">
             学生管理
           </a>
-          <a class="nav-link" data-toggle="pill" href="#contact" role="tab">
-            Products
-          </a>
         </nav>
       </div>
     </nav>
 
     <main class="col-md-9 ml-sm-auto col-lg-10 px-4 tab-content" role="main">
       <div class="tab-pane fade show active" id="home" role="tabpanel">
-        <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Dashboard</h1>
-        </div>
+        <h2 class="h2 mb-3">Dashboard</h2>
         <h3 class="h3">Section title</h3>
       </div>
       <div class="tab-pane fade show" id="teacher" role="tabpanel">
-        <h1 class="h2">教师管理</h1>
-        <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2 mb-3">教师管理</h1>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
           <h3 class="h3">教师列表</h3>
           <div class="mb-2 mb-md-0">
             <button class="btn btn-outline-primary" data-target="#teacherModal" data-toggle="modal">添加</button>
@@ -112,9 +105,9 @@
         </div>
       </div>
       <div class="tab-pane fade" id="clazz" role="tabpanel">
-        <h1 class="h2">班级管理</h1>
+        <h1 class="h2 mb-3">班级管理</h1>
         <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
           <h3 class="h3">班级列表</h3>
           <div class="mb-2 mb-md-0">
             <button class="btn btn-outline-primary" data-target="#clazzModal" data-toggle="modal">添加
@@ -172,9 +165,9 @@
         </div>
       </div>
       <div class="tab-pane fade" id="teaching" role="tabpanel">
-        <h1 class="h2">授课管理</h1>
+        <h1 class="h2 mb-3">授课管理</h1>
         <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
           <h3 class="h3">授课列表</h3>
           <div class="mb-2 mb-md-0">
             <button class="btn btn-outline-primary" data-target="#teachingModal" data-toggle="modal">添加
@@ -238,9 +231,9 @@
         </div>
       </div>
       <div class="tab-pane fade" id="student" role="tabpanel">
-        <h1 class="h2">学生管理</h1>
+        <h1 class="h2 mb-3">学生管理</h1>
         <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
           <h3 class="h3">学生列表</h3>
           <div class="mb-2 mb-md-0">
             <button class="btn btn-outline-primary" data-target="#studentModal" data-toggle="modal">添加
@@ -304,8 +297,6 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="profile" role="tabpanel">...</div>
-      <div class="tab-pane fade" id="contact" role="tabpanel">...</div>
     </main>
   </div>
 </div>
