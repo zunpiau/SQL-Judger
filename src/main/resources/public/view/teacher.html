@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <link href="/lib/sidebar.css" rel="stylesheet">
   <link href="/lib/bootstrap.min.css" rel="stylesheet">
+  <link href="/lib/sidebar.css" rel="stylesheet">
   <link href="/lib/bootstrap-datetimepicker.min.css" rel="stylesheet">
   <script src="/lib/jquery.min.js"></script>
   <script src="/lib/moment.min.js"></script>
@@ -70,8 +70,8 @@
   <title>Teacher</title>
 </head>
 <body>
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0">
-  <span class="navbar-brand col-sm-3 col-md-2 mr-0">后台管理</span>
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow-sm">
+  <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL Judger</span>
 </nav>
 
 <div class="container-fluid">
@@ -328,7 +328,20 @@
 </div>
 <script>
     moment.locale('zh-cn');
-    const user = Number.parseInt(getUser());
+    let currentTeacher;
+    axios.get("/teacher/profile")
+        .then(res => {
+            if (res.data.status === 200) {
+                currentTeacher = res.data.data;
+            } else {
+                console.log(res.data);
+                window.location.reload();
+            }
+        })
+        .catch(reason => {
+            console.log(reason);
+            window.location.reload();
+        });
     $(document).ready(function () {
         const $datetimepicker1 = $('#datetimepicker1');
         const $datetimepicker2 = $('#datetimepicker2');
@@ -424,7 +437,7 @@
         },
         methods: {
             deleteable(exercise) {
-                return exercise.teacher.number === user;
+                return exercise.teacher.number === currentTeacher.number;
             },
             cancelable(exam) {
                 if (exam.cancel) return false;

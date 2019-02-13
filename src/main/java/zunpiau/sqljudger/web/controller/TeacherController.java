@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zunpiau.sqljudger.web.BaseResponse;
 import zunpiau.sqljudger.web.Repository.ExerciseRepository;
+import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.controller.request.SQLExcuteRequest;
 import zunpiau.sqljudger.web.domain.Exam;
@@ -25,6 +26,7 @@ import zunpiau.sqljudger.web.service.ExamService;
 import zunpiau.sqljudger.web.service.JdbcService;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/teacher/")
@@ -32,16 +34,26 @@ public class TeacherController {
 
     private final ExerciseRepository exerciseRepository;
     private final TeachingRepository teachingRepository;
+    private final TeacherRepository teacherRepository;
     private final ExamService examService;
     private final JdbcService jdbcService;
 
     @Autowired
     public TeacherController(ExerciseRepository exerciseRepository, TeachingRepository teachingRepository,
-            ExamService examService, JdbcService jdbcService) {
+            TeacherRepository teacherRepository, ExamService examService,
+            JdbcService jdbcService) {
         this.exerciseRepository = exerciseRepository;
         this.teachingRepository = teachingRepository;
+        this.teacherRepository = teacherRepository;
         this.examService = examService;
         this.jdbcService = jdbcService;
+    }
+
+    @GetMapping("profile")
+    public BaseResponse<?> getProfile(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        final Optional<Teacher> optionalTeacher = teacherRepository.findById(number);
+        return optionalTeacher.map(BaseResponse::ok)
+                .orElseGet(() -> new BaseResponse<>(400, null, null));
     }
 
     @GetMapping("exercise")

@@ -85,13 +85,8 @@ public class LoginController {
                         .httpOnly(true)
                         .build()
                         .toString();
-                String userCookie = ResponseCookie.from("user", number.toString())
-                        .maxAge(Duration.ofDays(1))
-                        .httpOnly(false)
-                        .build()
-                        .toString();
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.SET_COOKIE, tokenCookie, userCookie)
+                        .header(HttpHeaders.SET_COOKIE, tokenCookie)
                         .body(BaseResponse.ok(location));
             }
         }

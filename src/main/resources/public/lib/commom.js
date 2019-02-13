@@ -1,11 +1,3 @@
-function getCookie(name) {
-    return document.cookie.replace(new RegExp(`(?:(?:^|.*;\s*)${name}\s*\=\s*([^;]*).*$)|^.*$`), "$1");
-}
-
-function getUser() {
-    return getCookie("user");
-}
-
 function replaceArray(oldAarray, newArray) {
     oldAarray.splice(0, oldAarray.length, ...newArray);
 }
