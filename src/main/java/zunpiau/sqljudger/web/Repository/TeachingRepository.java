@@ -12,4 +12,6 @@ public interface TeachingRepository extends CrudRepository<Teaching, Long>, Enha
 
     List<Teaching> findTeachingsByTeacher(Teacher teacher);
 
+    Teaching findByClazz_IdAndTeacher_Number(Long clazz, Long teacher);
+
 }

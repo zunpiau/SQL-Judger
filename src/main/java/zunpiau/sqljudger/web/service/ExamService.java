@@ -4,47 +4,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zunpiau.sqljudger.web.Repository.ExamRepository;
-import zunpiau.sqljudger.web.Repository.ExerciseRepository;
+import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.domain.Exam;
-import zunpiau.sqljudger.web.domain.Exercise;
-import zunpiau.sqljudger.web.domain.Teacher;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class ExamService {
 
     private final ExamRepository examRepository;
-    private final ExerciseRepository exerciseRepository;
+    private final TeachingRepository teachingRepository;
 
     @Autowired
     public ExamService(ExamRepository examRepository,
-            ExerciseRepository exerciseRepository) {
+            TeachingRepository teachingRepository) {
         this.examRepository = examRepository;
-        this.exerciseRepository = exerciseRepository;
+        this.teachingRepository = teachingRepository;
     }
 
     @Transactional
-    public Exam save(Exam exam) {
-        final Set<Exercise> detachedExercises = exam.getExercises();
-        final Set<Exercise> exercises = new HashSet<>(detachedExercises.size(), 1);
-        for (Exercise detachedExercise : detachedExercises) {
-            final Exercise exercise = exerciseRepository.findById(detachedExercise.getId()).get();
-            exercises.add(exercise);
-        }
-        exam.setExercises(exercises);
+    public Exam save(Exam exam, Long teacher) {
+        final Long clazz = exam.getTeaching().getClazz().getId();
+        exam.setTeaching(teachingRepository.findByClazz_IdAndTeacher_Number(clazz, teacher));
         examRepository.save(exam);
         return exam;
     }
 
     public Exam findByIdAndTeacher(Long id, Long teacher) {
-        return examRepository.findByIdAndTeacher(id, new Teacher(teacher));
+        return examRepository.findByIdAndTeaching_Teacher_Number(id, teacher);
     }
 
     public List<Exam> findByTeacher(Long teacher) {
-        return examRepository.findByTeacher(new Teacher(teacher));
+        return examRepository.findByTeaching_Teacher_Number(teacher);
     }
 
     @Transactional

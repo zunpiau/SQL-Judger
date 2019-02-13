@@ -261,7 +261,7 @@
               <div>
                 <p class="card-text">考试时间: {{ unixEpochToString(exam.startTime) }} ~
                   {{ unixEpochToString(exam.endTime) }}</p>
-                <p class="card-text">考试班级: {{ exam.clazz.grade }} {{ exam.clazz.name }}</p>
+                <p class="card-text">考试班级: {{ exam.teaching.clazz.grade }} {{ exam.teaching.clazz.name }}</p>
               </div>
               <div class="align-middle">
                 <button class="btn btn-danger align-middle" v-if="cancelable(exam)" v-on:click="cancelExam(exam)">取消
@@ -306,7 +306,7 @@
               <tr v-for="exercise in exercises">
                 <th scope="row">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-bind:value="{id: exercise.id}"
+                    <input class="form-check-input" type="checkbox" v-bind:value="exercise.id"
                            v-model="exam.exercises">
                     <label class="form-check-label">{{ exercise.id }}</label>
                   </div>
@@ -384,7 +384,10 @@
                 exam: {
                     title: null,
                     startTime: null,
-                    clazz: {},
+                    teaching: {
+                        clazz: {},
+                        teacher: {}
+                    },
                     endTime: null,
                     exercises: [],
                 },
@@ -405,6 +408,19 @@
         },
         watch: {
             exams() {
+                this.classifyExams();
+            }
+        },
+        computed: {
+            expectedDataJson() {
+                if (this.exercise.expectedData != null)
+                    return JSON.stringify(this.exercise.expectedData);
+                else
+                    return "";
+            }
+        },
+        methods: {
+            classifyExams() {
                 let cancel = 0, finished = 0, progressing = 0, notStarted = 0;
                 this.exams.forEach(exam => {
                     if (exam.cancel) {
@@ -425,17 +441,7 @@
                 this.countExams.finished = finished;
                 this.countExams.progressing = progressing;
                 this.countExams.notStarted = notStarted;
-            }
-        },
-        computed: {
-            expectedDataJson() {
-                if (this.exercise.expectedData != null)
-                    return JSON.stringify(this.exercise.expectedData);
-                else
-                    return "";
-            }
-        },
-        methods: {
+            },
             deleteable(exercise) {
                 return exercise.teacher.number === currentTeacher.number;
             },
@@ -562,19 +568,18 @@
                     return
                 }
                 this.checkedClazzs.forEach(clazz => {
-                    this.exam.clazz.id = clazz;
+                    this.exam.teaching.clazz.id = clazz;
                     axios.post("/teacher/exam", JSON.stringify(this.exam), {
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     })
                         .then(res => {
-                            console.log(res);
-                            axios.get(`/teacher/exam/${res.data.data}`)
-                                .then(res => {
-                                    console.log(res);
-                                    this.exams.push(res.data);
-                                }).catch(reason => console.log(reason));
+                            console.log(res.data);
+                            if (res.data.status === 200) {
+                                alert("已添加");
+                                this.exams.push(res.data.data);
+                            }
                         })
                         .catch(reason => console.log(reason));
                 })
@@ -587,6 +592,7 @@
                     .then(res => {
                         console.log(res);
                         exam.cancel = true;
+                        this.classifyExams();
                     })
                     .catch(reason => console.log(reason));
             }

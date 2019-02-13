@@ -77,8 +77,8 @@ public class TeacherController {
 
     @PostMapping("exam")
     public BaseResponse<?> addExam(@RequestBody Exam exam, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        exam.setTeacher(new Teacher(number));
-        return BaseResponse.ok(examService.save(exam).getId());
+        exam.getTeaching().setTeacher(new Teacher(number));
+        return BaseResponse.ok(examService.save(exam, number));
     }
 
     @GetMapping("exam/{id}")

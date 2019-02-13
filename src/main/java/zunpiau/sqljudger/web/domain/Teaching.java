@@ -19,18 +19,22 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"teacher_id", "clazz_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"teacher_number", "clazz_id"}))
 public class Teaching implements Serializable {
 
     private static final long serialVersionUID = 8572262902500213124L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JoinColumn(nullable = false, name = "teacher_id")
+    @JoinColumn(nullable = false, name = "teacher_number")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Teacher teacher;
     @JoinColumn(nullable = false, name = "clazz_id")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Clazz clazz;
 
+    public Teaching(Teacher teacher, Clazz clazz) {
+        this.teacher = teacher;
+        this.clazz = clazz;
+    }
 }
