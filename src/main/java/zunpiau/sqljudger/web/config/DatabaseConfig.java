@@ -1,10 +1,11 @@
 package zunpiau.sqljudger.web.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +28,17 @@ import java.util.Collections;
 @EnableJpaRepositories(basePackages = "zunpiau.sqljudger.web.Repository")
 public class DatabaseConfig {
 
+    @Bean
+    @Primary
+    @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    public HikariConfig hikariConfig() {
+        return new HikariConfig();
+    }
+
     @Primary
     @Bean(name = "dataSource")
-    @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource dataSource() {
-        return DataSourceBuilder.create().build();
+    public DataSource dataSource(HikariConfig hikariConfig) {
+        return new HikariDataSource(hikariConfig);
     }
 
     @Primary
@@ -61,9 +68,14 @@ public class DatabaseConfig {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
+    @Bean(name = "judgerHikariConfig")
+    @ConfigurationProperties(prefix = "judger.datasource.hikari")
+    public HikariConfig judgerHikariConfig() {
+        return new HikariConfig();
+    }
+
     @Bean(name = "judgerDataSource")
-    @ConfigurationProperties(prefix = "judger.datasource")
-    public DataSource judgerDataSource() {
-        return DataSourceBuilder.create().build();
+    public DataSource judgerDataSource(@Qualifier("judgerHikariConfig") HikariConfig hikariConfig) {
+        return new HikariDataSource(hikariConfig);
     }
 }

@@ -2,11 +2,11 @@ spring:
   application:
     name: SQLJudger
   datasource:
-    jdbc-url: jdbc:postgresql://localhost:5432/sql_judger
-    password: 1122
-    username: postgres
-    driver-class-name: org.postgresql.Driver
     hikari:
+      jdbc-url: jdbc:postgresql://localhost:5432/sql_judger
+      password: 1122
+      username: postgres
+      driver-class-name: org.postgresql.Driver
       maximum-pool-size: 2
   jpa:
     properties:
@@ -32,7 +32,9 @@ jwt:
   expiration: 86400
 judger:
   datasource:
-    jdbc-url: jdbc:postgresql://localhost:5432/judger_test
-    password: 1122
-    username: postgres
-    driver-class-name: org.postgresql.Driver
+    hikari:
+      jdbc-url: jdbc:postgresql://localhost:5432/judger_test
+      password: 1122
+      username: postgres
+      driver-class-name: org.postgresql.Driver
+      maximum-pool-size: 2
