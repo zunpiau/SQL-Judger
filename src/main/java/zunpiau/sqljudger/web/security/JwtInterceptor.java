@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 public class JwtInterceptor extends HandlerInterceptorAdapter {
 
     public static final String ATTR_NUMBER = "attr_number";
+    public static final String REDIRECT_FROM = "from";
     private final JWTVerifier jwtVerifier;
     private final String role;
 
@@ -41,8 +42,9 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
                 }
             }
         }
-        if (request.getRequestURI().endsWith(".html")) {
-            response.sendRedirect("/view/login.html");
+        final String requestURI = request.getRequestURI();
+        if (requestURI.endsWith(".html")) {
+            response.sendRedirect("/view/login.html?" + REDIRECT_FROM + '=' + requestURI);
             return false;
         }
         response.setStatus(HttpStatus.UNAUTHORIZED.value());

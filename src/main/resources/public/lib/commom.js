@@ -8,6 +8,10 @@ function deleteElement(array, e) {
         array.splice(index, 1);
 }
 
+function getUrlParams(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
 function loadEntity(url, entities) {
     console.log(url);
     axios.get(url)

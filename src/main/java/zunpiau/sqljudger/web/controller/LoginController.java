@@ -13,10 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import zunpiau.sqljudger.web.BaseResponse;
 import zunpiau.sqljudger.web.Repository.StudentRepository;
 import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.domain.User;
+import zunpiau.sqljudger.web.security.JwtInterceptor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -56,7 +58,8 @@ public class LoginController {
 
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<?> login(Long number, String password, String type) throws Exception {
+    public ResponseEntity<?> login(Long number, String password, String type,
+            @RequestParam(name = JwtInterceptor.REDIRECT_FROM, required = false) String from) throws Exception {
         if (StringUtils.isEmpty(number) || StringUtils.isEmpty(password)) {
             return ResponseEntity.badRequest().build();
         }
@@ -72,6 +75,7 @@ public class LoginController {
             role = "student";
             location = "/view/student.html";
         }
+        String redirect = StringUtils.isEmpty(from) ? location : from;
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (encoder.matches(password, user.getPassword())) {
@@ -87,7 +91,7 @@ public class LoginController {
                         .toString();
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, tokenCookie)
-                        .body(BaseResponse.ok(location));
+                        .body(BaseResponse.ok(redirect));
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
