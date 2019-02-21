@@ -71,7 +71,7 @@ public class TeacherController {
     @DeleteMapping("exercise/{id}")
     public BaseResponse<?> deleteExercise(@PathVariable Long id,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        final int updateCount = exerciseRepository.deleteByIdAndAndTeacher(id, new Teacher(number));
+        final int updateCount = exerciseRepository.deleteByIdAndTeacher(id, new Teacher(number));
         return BaseResponse.ok(updateCount > 0);
     }
 

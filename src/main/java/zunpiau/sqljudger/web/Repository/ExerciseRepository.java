@@ -12,5 +12,5 @@ public interface ExerciseRepository extends CrudRepository<Exercise, Long> {
 
     @Modifying
     @Transactional
-    int deleteByIdAndAndTeacher(Long id, Teacher teacher);
+    int deleteByIdAndTeacher(Long id, Teacher teacher);
 }
