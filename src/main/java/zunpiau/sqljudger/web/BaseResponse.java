@@ -24,4 +24,7 @@ public class BaseResponse<T> {
         return new BaseResponse<>(200, null, data);
     }
 
+    public BaseResponse(int status) {
+        this.status = status;
+    }
 }

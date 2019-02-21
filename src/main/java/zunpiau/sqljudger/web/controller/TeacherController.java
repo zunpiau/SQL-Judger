@@ -53,7 +53,7 @@ public class TeacherController {
     public BaseResponse<?> getProfile(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         final Optional<Teacher> optionalTeacher = teacherRepository.findById(number);
         return optionalTeacher.map(BaseResponse::ok)
-                .orElseGet(() -> new BaseResponse<>(400, null, null));
+                .orElseGet(() -> new BaseResponse<>(400));
     }
 
     @GetMapping("exercise")
