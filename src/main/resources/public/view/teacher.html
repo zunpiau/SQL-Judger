@@ -6,6 +6,7 @@
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <link href="/lib/bootstrap.min.css" rel="stylesheet">
   <link href="/lib/sidebar.css" rel="stylesheet">
+  <link href="/lib/common.css" rel="stylesheet">
   <link href="/lib/bootstrap-datetimepicker.min.css" rel="stylesheet">
   <script src="/lib/jquery.min.js"></script>
   <script src="/lib/moment.min.js"></script>
@@ -331,20 +332,6 @@
 </div>
 <script>
     moment.locale('zh-cn');
-    let currentTeacher;
-    axios.get("/teacher/profile")
-        .then(res => {
-            if (res.data.status === 200) {
-                currentTeacher = res.data.data;
-            } else {
-                console.log(res.data);
-                window.location.reload();
-            }
-        })
-        .catch(reason => {
-            console.log(reason);
-            window.location.reload();
-        });
     $(document).ready(function () {
         const $datetimepicker1 = $('#datetimepicker1');
         const $datetimepicker2 = $('#datetimepicker2');
@@ -371,43 +358,55 @@
     });
     const vueMain = new Vue({
         el: '#vue_main',
-        data() {
-            return {
+        data: {
+            currentTeacher: null,
+            exercises: [],
+            exercise: {
+                title: "",
+                description: "",
+                score: "10",
+                inputSQL: "",
+                inputData: null,
+                expectedSQL: "",
+                expectedData: null,
+            },
+            teachings: [],
+            exam: {
+                title: null,
+                startTime: null,
+                teaching: {
+                    clazz: {},
+                    teacher: {}
+                },
+                endTime: null,
                 exercises: [],
-                exercise: {
-                    title: "",
-                    description: "",
-                    score: "10",
-                    inputSQL: "",
-                    inputData: null,
-                    expectedSQL: "",
-                    expectedData: null,
-                },
-                teachings: [],
-                exam: {
-                    title: null,
-                    startTime: null,
-                    teaching: {
-                        clazz: {},
-                        teacher: {}
-                    },
-                    endTime: null,
-                    exercises: [],
-                },
-                exams: [],
-                countExams: {
-                    cancel: 0,
-                    finished: 0,
-                    progressing: 0,
-                    notStarted: 0,
-                },
-                checkedClazzs: [],
-                selectExercise: {},
-            }
+            },
+            exams: [],
+            countExams: {
+                cancel: 0,
+                finished: 0,
+                progressing: 0,
+                notStarted: 0,
+            },
+            checkedClazzs: [],
+            selectExercise: {},
         },
-        created() {
-            this.loadTeachings();
-            this.loadExams();
+        async created() {
+            await this.loadTeachings();
+            await this.loadExams();
+            await axios.get("/teacher/profile")
+                .then(res => {
+                    if (res.data.status === 200) {
+                        this.currentTeacher = res.data.data;
+                    } else {
+                        console.log(res.data);
+                        window.location.reload();
+                    }
+                })
+                .catch(reason => {
+                    console.log(reason);
+                    window.location.reload();
+                });
         },
         watch: {
             exams() {
@@ -446,7 +445,7 @@
                 this.countExams.notStarted = notStarted;
             },
             deleteable(exercise) {
-                return exercise.teacher.number === currentTeacher.number;
+                return exercise.teacher.number === this.currentTeacher.number;
             },
             cancelable(exam) {
                 if (exam.cancel) return false;
