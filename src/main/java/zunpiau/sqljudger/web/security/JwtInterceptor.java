@@ -9,6 +9,8 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class JwtInterceptor extends HandlerInterceptorAdapter {
 
@@ -44,7 +46,14 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         }
         final String requestURI = request.getRequestURI();
         if (requestURI.endsWith(".html")) {
-            response.sendRedirect("/view/login.html?" + REDIRECT_FROM + '=' + requestURI);
+            final String from = URLEncoder.encode(requestURI + '?' + request.getQueryString(),
+                    StandardCharsets.UTF_8.name());
+            final String location = new StringBuilder().append("/view/login.html?")
+                    .append(REDIRECT_FROM)
+                    .append('=')
+                    .append(from)
+                    .toString();
+            response.sendRedirect(location);
             return false;
         }
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
