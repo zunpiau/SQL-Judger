@@ -21,6 +21,15 @@ function loadEntity(url, entities) {
         })
 }
 
+function loadEntity2(url, entities) {
+    console.log(url);
+    axios.get(url)
+        .then(response => replaceArray(entities, response.data.data))
+        .catch(reason => {
+            console.log(reason);
+        })
+}
+
 function deleteEntity(url, entities, entity) {
     axios.delete(url)
         .then((response) => {

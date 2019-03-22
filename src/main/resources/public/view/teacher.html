@@ -215,7 +215,8 @@
             <textarea class="form-control" id="inputSQLInput" placeholder="SQL语句，可为空" rows="3"
                       v-model="exercise.inputSQL"></textarea>
             <div class="d-flex justify-content-end">
-              <button class="btn btn-outline-secondary mt-1" id="inputBtn" type="button" v-on:click="getInputData">
+              <button :disabled="disableRunSQL" class="btn btn-outline-secondary mt-1" id="inputBtn" type="button"
+                      v-on:click="getInputData">
                 生成输入数据
               </button>
             </div>
@@ -257,8 +258,8 @@
         </div>
         <div class="card mb-5 shadow-sm" v-for="exam in exams">
           <div class="card-header">
-            <span class="h4">{{ exam.title }}</span>
-            <span class="badge badge-primary ml-2">{{ getBadgeText(exam) }}</span>
+            <span class="h4">{{ exam.id }}. {{ exam.title }}</span>
+            <span class="badge badge-info ml-2">{{ getBadgeText(exam) }}</span>
           </div>
           <div class="card-body">
             <div class="d-flex justify-content-between">
@@ -267,8 +268,12 @@
                   {{ unixEpochToString(exam.endTime) }}</p>
                 <p class="card-text">考试班级: {{ exam.teaching.clazz.grade }} {{ exam.teaching.clazz.name }}</p>
               </div>
-              <div class="align-middle">
-                <button class="btn btn-danger align-middle" v-if="cancelable(exam)" v-on:click="cancelExam(exam)">取消
+              <div class="d-flex align-items-center">
+                <button class="btn btn-danger" v-if="cancelable(exam)" v-on:click="cancelExam(exam)">取消
+                </button>
+                <button class="btn btn-primary" v-if="correctable(exam)" v-on:click="correctExam(exam, $event)">改卷
+                </button>
+                <button class="btn btn-secondary" v-if="reviewable(exam)" v-on:click="reviewExam(exam)">复查
                 </button>
               </div>
             </div>
@@ -402,10 +407,6 @@
                         console.log(res.data);
                         window.location.reload();
                     }
-                })
-                .catch(reason => {
-                    console.log(reason);
-                    window.location.reload();
                 });
         },
         watch: {
@@ -419,13 +420,16 @@
                     return JSON.stringify(this.exercise.expectedData);
                 else
                     return "";
+            },
+            disableRunSQL() {
+                return this.exercise.inputSQL === "";
             }
         },
         methods: {
             classifyExams() {
                 let cancel = 0, finished = 0, progressing = 0, notStarted = 0;
                 this.exams.forEach(exam => {
-                    if (exam.cancel) {
+                    if (exam.status === 1) {
                         cancel++;
                         return
                     }
@@ -448,16 +452,40 @@
                 return exercise.teacher.number === this.currentTeacher.number;
             },
             cancelable(exam) {
-                if (exam.cancel) return false;
+                if (exam.status === 1) return false;
                 return moment().isBefore(exam.startTime * 1000);
+            },
+            correctable(exam) {
+                return exam.status === 0 && moment().isAfter(exam.endTime * 1000);
+            },
+            correctExam(exam, event) {
+                axios.put(`/teacher/exam/${exam.id}/correct`)
+                    .then(res => {
+                        if (res.status === 200) {
+                            $(event.target).attr("disabled", "true");
+                        }
+                    })
+            },
+            reviewable(exam) {
+                return exam.status >= 3 && moment().isAfter(exam.endTime * 1000);
+            },
+            reviewExam(exam) {
 
             },
             unixEpochToString(second) {
                 return moment.unix(second).format("YYYY-MM-DD HH:mm");
             },
             getBadgeText(exam) {
-                if (exam.cancel)
-                    return "已取消";
+                switch (exam.status) {
+                    case 1:
+                        return "已取消";
+                    case 2:
+                        return "改卷中";
+                    case 3:
+                        return "已改卷";
+                    case 4:
+                        return "已复查";
+                }
                 const now = moment();
                 if (now.isBefore(exam.startTime * 1000)) {
                     return "未开始";
@@ -507,7 +535,7 @@
             },
             loadExercises() {
                 if (this.exercises.length === 0)
-                    loadEntity("/teacher/exercise", this.exercises);
+                    loadEntity2("/teacher/exercise", this.exercises);
             },
             deleteExercise(exercise) {
                 axios.delete(`/teacher/exercise/${exercise.id}`)
@@ -545,7 +573,7 @@
                     }).catch(reason => console.log(reason))
             },
             loadTeachings() {
-                loadEntity("/teacher/teaching", this.teachings);
+                loadEntity2("/teacher/teaching", this.teachings);
             },
             addExam() {
                 console.log(this.exam);
@@ -587,13 +615,13 @@
                 })
             },
             loadExams() {
-                loadEntity("/teacher/exam", this.exams);
+                loadEntity2("/teacher/exam", this.exams);
             },
             cancelExam(exam) {
                 axios.put(`/teacher/exam/${exam.id}/cancel`)
                     .then(res => {
                         console.log(res);
-                        exam.cancel = true;
+                        exam.status = 1;
                         this.classifyExams();
                     })
                     .catch(reason => console.log(reason));

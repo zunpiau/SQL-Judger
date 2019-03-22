@@ -1,4 +1,5 @@
 .idea/
+src/main/resources/public/.idea/
 target/
 out/
 .git/

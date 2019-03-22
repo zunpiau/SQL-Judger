@@ -2,7 +2,6 @@ package zunpiau.sqljudger.web.controller;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +21,7 @@ import zunpiau.sqljudger.web.domain.Exam;
 import zunpiau.sqljudger.web.domain.Exercise;
 import zunpiau.sqljudger.web.domain.Teacher;
 import zunpiau.sqljudger.web.security.JwtInterceptor;
+import zunpiau.sqljudger.web.service.AnswerSheetService;
 import zunpiau.sqljudger.web.service.ExamService;
 import zunpiau.sqljudger.web.service.JdbcService;
 
@@ -36,16 +36,18 @@ public class TeacherController {
     private final TeachingRepository teachingRepository;
     private final TeacherRepository teacherRepository;
     private final ExamService examService;
+    private final AnswerSheetService answerSheetService;
     private final JdbcService jdbcService;
 
     @Autowired
     public TeacherController(ExerciseRepository exerciseRepository, TeachingRepository teachingRepository,
             TeacherRepository teacherRepository, ExamService examService,
-            JdbcService jdbcService) {
+            AnswerSheetService answerSheetService, JdbcService jdbcService) {
         this.exerciseRepository = exerciseRepository;
         this.teachingRepository = teachingRepository;
         this.teacherRepository = teacherRepository;
         this.examService = examService;
+        this.answerSheetService = answerSheetService;
         this.jdbcService = jdbcService;
     }
 
@@ -57,8 +59,8 @@ public class TeacherController {
     }
 
     @GetMapping("exercise")
-    public ResponseEntity<?> getExercise() {
-        return ResponseEntity.ok(exerciseRepository.findAll());
+    public BaseResponse<?> getExercise() {
+        return BaseResponse.ok(exerciseRepository.findAll());
     }
 
     @PostMapping("exercise")
@@ -77,29 +79,52 @@ public class TeacherController {
 
     @PostMapping("exam")
     public BaseResponse<?> addExam(@RequestBody Exam exam, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        exam.getTeaching().setTeacher(new Teacher(number));
         return BaseResponse.ok(examService.save(exam, number));
     }
 
     @GetMapping("exam/{id}")
-    public ResponseEntity<?> getExam(@PathVariable Long id, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        return ResponseEntity.ok(examService.findByIdAndTeacher(id, number));
+    public BaseResponse<?> getExam(@PathVariable Long id, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(examService.findByIdAndTeacher(id, number));
     }
 
     @PutMapping("exam/{id}/cancel")
-    public ResponseEntity<?> cancelExam(@PathVariable Long id,
+    public BaseResponse<?> cancelExam(@PathVariable Long id,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        return ResponseEntity.ok(examService.cancelExam(id, number));
+        return BaseResponse.ok(examService.cancelExam(id, number));
     }
 
     @GetMapping("exam")
-    public ResponseEntity<?> getExam(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        return ResponseEntity.ok(examService.findByTeacher(number));
+    public BaseResponse<?> getExam(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(examService.findByTeacher(number));
+    }
+
+    @PutMapping("exam/{id}/correct")
+    public BaseResponse<?> correct(@PathVariable Long id, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        examService.correctAll(id, number);
+        System.out.println("TeacherController.correct" + System.currentTimeMillis());
+        return BaseResponse.ok();
+    }
+
+    @GetMapping("exam/{id}/answersheet")
+    public BaseResponse<?> getAnswersheet(@PathVariable Long id,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(examService.getAnswerSheet(id, number));
+    }
+
+    @GetMapping("answersheet/{id}/answers")
+    public BaseResponse<?> getAnswer(@PathVariable Long id,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(answerSheetService.findAllByExam_Id(id, number));
+    }
+
+    @PutMapping("answersheet")
+    public BaseResponse<?> updateScore() {
+        return null;
     }
 
     @GetMapping("teaching")
-    public ResponseEntity<?> getTeaching(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        return ResponseEntity.ok(teachingRepository.findTeachingsByTeacher(new Teacher(number)));
+    public BaseResponse<?> getTeaching(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(teachingRepository.findAllByTeacher_Number(number));
     }
 
     @PostMapping("sql/retrieve")
@@ -116,6 +141,5 @@ public class TeacherController {
     public BaseResponse<?> handleSQLExcetion(Exception e) {
         return new BaseResponse<>(400, e.getMessage(), null);
     }
-
 
 }

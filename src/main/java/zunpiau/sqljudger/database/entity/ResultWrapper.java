@@ -1,5 +1,6 @@
 package zunpiau.sqljudger.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,8 @@ public class ResultWrapper {
 
     DataSet dataSet;
     List<SimpleTable> tables;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String exception;
 
     public ResultWrapper(DataSet dataSet) {
         this.dataSet = dataSet;
@@ -18,5 +21,9 @@ public class ResultWrapper {
 
     public ResultWrapper(List<SimpleTable> tables) {
         this.tables = tables;
+    }
+
+    public ResultWrapper(String exception) {
+        this.exception = exception;
     }
 }

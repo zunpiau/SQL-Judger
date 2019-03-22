@@ -8,6 +8,7 @@ spring:
       username: postgres
       driver-class-name: org.postgresql.Driver
       maximum-pool-size: 2
+      pool-name: main
   jpa:
     properties:
       hibernate:
@@ -23,6 +24,8 @@ spring:
   data:
     rest:
       base-path: api
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
 admin:
   name: admin
   password: 1234
@@ -38,3 +41,23 @@ judger:
       username: postgres
       driver-class-name: org.postgresql.Driver
       maximum-pool-size: 2
+      pool-name: judger
+  task:
+    exam:
+      thread-name-prefix: exam-
+      pool:
+        max-size: ${judger.datasource.hikari.maximum-pool-size}
+        core-size: ${judger.datasource.hikari.maximum-pool-size}
+        queue-capacity: 10
+    answersheet:
+      thread-name-prefix: answerSheet-
+      pool:
+        max-size: ${judger.datasource.hikari.maximum-pool-size}
+        core-size: ${judger.datasource.hikari.maximum-pool-size}
+        queue-capacity: 100
+    post:
+      thread-name-prefix: post-
+      pool:
+        max-size: ${judger.datasource.hikari.maximum-pool-size}
+        core-size: ${judger.datasource.hikari.maximum-pool-size}
+        queue-capacity: 200

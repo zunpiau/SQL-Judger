@@ -17,8 +17,8 @@ import java.io.Serializable;
 @Entity
 @Table(indexes = @Index(columnList = "name"))
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = false)
+@ToString(exclude = "clazz", callSuper = true)
+@EqualsAndHashCode(exclude = "clazz", callSuper = false)
 @NoArgsConstructor
 public class Student extends User implements Serializable {
 
@@ -27,4 +27,7 @@ public class Student extends User implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     private Clazz clazz;
 
+    public Student(Long number) {
+        super(number);
+    }
 }

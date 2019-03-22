@@ -4,336 +4,128 @@
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <link href="/lib/bootstrap.min.css" rel="stylesheet">
+  <link href="/lib/sidebar.css" rel="stylesheet">
   <script src="/lib/jquery.min.js"></script>
+  <script src="/lib/moment.min.js"></script>
+  <script src="/lib/zh-cn.js"></script>
   <script src="/lib/bootstrap.min.js"></script>
   <script src="/lib/vue.js"></script>
   <script src="/lib/axios.js"></script>
-  <title>Teacher</title>
-  <style>
-    .sidebar {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 100; /* Behind the navbar */
-      padding: 48px 0 0; /* Height of navbar */
-      box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    }
-
-    .sidebar-sticky {
-      position: relative;
-      top: 0;
-      height: calc(100vh - 48px);
-      padding-top: .5rem;
-      overflow-x: hidden;
-      overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    }
-
-    @supports ((position: -webkit-sticky) or (position: sticky)) {
-      .sidebar-sticky {
-        position: -webkit-sticky;
-        position: sticky;
-      }
-    }
-
-    .sidebar .nav-link {
-      font-weight: 500;
-      color: #333;
-    }
-
-    .sidebar .nav-link.active {
-      color: #007bff;
-    }
-
-    [role="main"] {
-      padding-top: 133px; /* Space for fixed navbar */
-    }
-
-    .navbar-brand {
-      padding-top: .75rem;
-      padding-bottom: .75rem;
-      font-size: 1rem;
-      background-color: rgba(0, 0, 0, .25);
-      box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
-    }
-
-    .nav-tabs .nav-link {
-      border-top-left-radius: .25rem;
-      border-bottom-left-radius: .25rem;
-      border-top-right-radius: 0;
-    }
-
-  </style>
+  <script src="/lib/commom.js"></script>
+  <title>Student</title>
 </head>
 <body>
-<nav class="navbar 1navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-  <span class="navbar-brand col-sm-3 col-md-2 mr-0">后台管理</span>
-  <ul class="navbar-nav px-3">
-    <li class="nav-item text-nowrap">
-      <a class="nav-link" href="#">Sign out</a>
-    </li>
-  </ul>
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow-sm">
+  <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL Judger</span>
 </nav>
 
 <div class="container-fluid">
   <div class="row" id="vue_main">
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
       <div class="sidebar-sticky">
-        <ul class="nav nav-tabs flex-column" id="nav_tabs" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#home" id="home-tab" role="tab">
-              Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#teacher" id="teacher-tab" role="tab"
-               v-on:click.once="loadTeachers">
-              教师管理
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#student" id="profile-tab" role="tab"
-               v-on:click.once="loadStudents">
-              学生管理
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#contact" id="contact-tab" role="tab">
-              Products
-            </a>
-          </li>
-        </ul>
+        <nav class="nav nav-pills flex-column" id="nav_tabs">
+          <a class="nav-link" data-toggle="pill" href="#home" role="tab">
+            Dashboard
+          </a>
+          <a class="nav-link active" data-toggle="pill" href="#exam" role="tab">
+            考试安排
+          </a>
+          <!--          <a class="nav-link" data-toggle="pill" href="#clazz" role="tab">-->
+          <!--            班级管理-->
+          <!--          </a>-->
+          <!--          <a class="nav-link" data-toggle="pill" href="#teaching" role="tab">-->
+          <!--            授课管理-->
+          <!--          </a>-->
+          <!--          <a class="nav-link" data-toggle="pill" href="#student" role="tab">-->
+          <!--            学生管理-->
+          <!--          </a>-->
+        </nav>
       </div>
     </nav>
 
     <main class="col-md-9 ml-sm-auto col-lg-10 px-4 tab-content" role="main">
-      <div class="tab-pane fade show active" id="home" role="tabpanel">
-        <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Dashboard</h1>
-        </div>
-
+      <div class="tab-pane fade show" id="home" role="tabpanel">
+        <h2 class="h2 mb-3">Dashboard</h2>
         <h3 class="h3">Section title</h3>
       </div>
-      <div class="tab-pane fade show" id="teacher" role="tabpanel">
-        <h1 class="h2">教师管理</h1>
-        <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h3 class="h3">教师列表</h3>
-          <div class="mb-2 mb-md-0">
-            <button class="btn btn-outline-primary" data-target="#teacherModal" data-toggle="modal">添加
-            </button>
+      <div class="tab-pane fade show active" id="exam" role="tabpanel">
+        <h2 class="h2 mb-3">考试安排</h2>
+        <div v-if=" this.exams.length === 0">
+          <p>当前没有考试</p>
+        </div>
+        <div class="card mb-5 shadow-sm" v-for="exam in exams">
+          <div class="card-header">
+            <span class="h4">{{ exam.id }}. {{ exam.title }}</span>
+            <span class="badge badge-primary ml-2">{{ getBadgeText(exam) }}</span>
           </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-striped table-sm">
-            <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">教工号</th>
-              <th scope="col">姓名</th>
-              <th scope="col">操作</th>
-            </tr>
-            </thead>
-            <tbody id="teacher_tbody">
-            <tr :key="index" v-for="(teacher, index) in teachers">
-              <th scope="row">{{ index + 1 }}</th>
-              <td>{{ teacher.number }}</td>
-              <td>{{ teacher.name }}</td>
-              <td>
-                <button class="btn btn-danger btn-sm" v-on:click="deleteTeacher(teacher.number, index)">
-                  删除
-                </button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="modal fade" id="teacherModal" role="dialog" tabindex="-1">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">添加教师</h5>
-                <button class="close" data-dismiss="modal" type="button">
-                  <span>&times;</span>
-                </button>
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <p class="card-text">考试时间: {{ unixEpochToString(exam.startTime) }} ~
+                  {{ unixEpochToString(exam.endTime) }}</p>
               </div>
-              <div class="modal-body">
-                <form>
-                  <input class="form-control mb-2" id="teacherInputNumber" placeholder="教工号"
-                         type="number"
-                         v-model="teacher.number">
-                  <input class="form-control mb-2" id="teacherInputName" placeholder="姓名"
-                         v-model="teacher.name">
-                  <input class="form-control mb-2" id="teacherInputPassword"
-                         placeholder="密码" v-model="teacher.password">
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
-                <button class="btn btn-primary" type="button" v-on:click="addTeacher">添加</button>
+              <div class="align-middle">
+                <a :id="'btn-' + exam.id" class="btn btn-danger align-middle" target="_blank"
+                   v-bind:href="'/view/student/exam.html?id=' + exam.id" v-show="answerable(exam)">进入考试
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="student" role="tabpanel">
-        <h1 class="h2">学生管理</h1>
-        <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h3 class="h3">学生列表</h3>
-          <div class="mb-2 mb-md-0">
-            <button class="btn btn-outline-primary" data-target="#studentModal" data-toggle="modal">添加
-            </button>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-striped table-sm">
-            <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">学号</th>
-              <th scope="col">姓名</th>
-              <th scope="col">操作</th>
-            </tr>
-            </thead>
-            <tbody id="student_tbody">
-            <tr :key="index" v-for="(student, index) in students">
-              <th scope="row">{{ index + 1 }}</th>
-              <td>{{ student.number }}</td>
-              <td>{{ student.name }}</td>
-              <td>
-                <button class="btn btn-danger btn-sm" v-on:click="deleteStudent(student.number, index)">
-                  删除
-                </button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="modal fade" id="studentModal" role="dialog" tabindex="-1">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">添加学生</h5>
-                <button class="close" data-dismiss="modal" type="button">
-                  <span>&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form>
-                  <input class="form-control mb-2" id="studentInputNumber" placeholder="学号"
-                         type="number"
-                         v-model="student.number">
-                  <input class="form-control mb-2" id="studentInputName" placeholder="姓名"
-                         v-model="student.name">
-                  <input class="form-control mb-2" id="studentInputPassword"
-                         placeholder="密码" v-model="student.password">
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
-                <button class="btn btn-primary" type="button" v-on:click="addStudent">添加</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="tab-pane fade" id="profile" role="tabpanel">...</div>
-      <div class="tab-pane fade" id="contact" role="tabpanel">...</div>
     </main>
   </div>
 </div>
 <script>
-    $(document).ready(function () {
-        $.get("/teacher/exercise");
-    });
-    const tabs = new Vue({
-        el: '#nav_tabs',
+    moment.locale('zh-cn');
+    const vueMain = new Vue({
+        el: '#vue_main',
+        data() {
+            return {
+                exercises: [],
+                exams: [],
+            }
+        },
+        created() {
+            this.loadExams();
+        },
         methods: {
-            loadTeachers: function () {
-                console.log("loadTeacher");
-                axios.get('admin/teacher')
-                    .then(function (response) {
-                        teacherTbody.teachers = response.data;
-                    })
+            answerable(exam) {
+                if (exam.status !== 0 || moment().isAfter(exam.endTime * 1000))
+                    return false;
+                const diff = exam.startTime - moment().unix();
+                if (diff <= 0)
+                    return true;
+                if (diff < 1800) {
+                    setTimeout(() => {
+                        $(`#btn-${exam.id}`).removeAttr("style");
+                    }, diff * 1000);
+                }
+                return false;
             },
-            loadStudents: function () {
-                console.log("loadStudent");
-                axios.get('admin/student')
-                    .then(function (response) {
-                        studentTbody.students = response.data;
-                    })
-            }
+            unixEpochToString(second) {
+                return moment.unix(second).format("YYYY-MM-DD HH:mm");
+            },
+            getBadgeText(exam) {
+                if (exam.status === 1)
+                    return "已取消";
+                const now = moment();
+                if (now.isBefore(exam.startTime * 1000)) {
+                    return "未开始";
+                }
+                if (now.isAfter(exam.endTime * 1000)) {
+                    return "已结束";
+                }
+                return "进行中";
+            },
+            loadTeachings() {
+                loadEntity("/teacher/teaching", this.teachings);
+            },
+            loadExams() {
+                loadEntity("/student/exam", this.exams);
+            },
         }
     });
-    const teacherTbody = new Vue({
-        el: '#teacher_tbody',
-        data: {
-            teachers: [],
-        },
-        methods: {
-            deleteTeacher(number, index) {
-                console.log("deleteTeacher");
-                axios.delete(`admin/teacher/${number}`)
-                    .then(function (response) {
-                        teacherTbody.teachers = teacherTbody.teachers.filter((e, i) => i !== index)
-                    })
-                    .catch(function (error) {
-                        console.error(error);
-                    });
-            }
-        }
-    });
-    const teacherModal = new Vue({
-        el: '#teacherModal',
-        data: {
-            teacher: {}
-        },
-        methods: {
-            addTeacher: function () {
-                axios.post('admin/teacher', teacherModal.teacher)
-                    .then(function (response) {
-                        teacherTbody.teachers.push(teacherModal.teacher);
-                        $('#teacherModal').modal('hide')
-                    });
-            }
-        }
-    });
-
-    const studentTbody = new Vue({
-        el: '#student_tbody',
-        data: {
-            students: [],
-        },
-        methods: {
-            deleteStudent(number, index) {
-                console.log("delete student");
-                axios.delete(`admin/student/${number}`)
-                    .then(function (response) {
-                        studentTbody.students = studentTbody.students.filter((e, i) => i !== index)
-                    })
-                    .catch(function (error) {
-                        console.error(error);
-                    });
-            }
-        }
-    });
-    const studentModal = new Vue({
-        el: '#studentModal',
-        data: {
-            student: {}
-        },
-        methods: {
-            addStudent: function () {
-                axios.post('admin/student', studentModal.student)
-                    .then(function (response) {
-                        studentTbody.students.push(studentModal.student);
-                        $('#studentModal').modal('hide')
-                    });
-            }
-        }
-    })
 </script>
 </body>
 </html>

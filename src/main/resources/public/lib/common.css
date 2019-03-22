@@ -1,0 +1,14 @@
+.code {
+    background-color: #f8f9fa;
+    border: 1px solid #eff0f1;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+[role="main"] {
+    padding-top: 64px; /* Space for fixed navbar */
+}

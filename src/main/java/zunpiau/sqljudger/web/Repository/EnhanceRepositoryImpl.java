@@ -23,6 +23,7 @@ public class EnhanceRepositoryImpl<T, ID> implements EnhanceRepository<T, ID> {
     }
 
     @Override
+    @Transactional
     public T merger(T t) {
         return entityManager.merge(t);
     }

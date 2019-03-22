@@ -54,7 +54,7 @@ public class SecurityConfig {
             registry.addInterceptor(new HttpBasicInterceptor(adminName, adminPassword))
                     .addPathPatterns("/admin/**", "/view/admin.html");
             registry.addInterceptor(new JwtInterceptor(jwtVerifier, "student"))
-                    .addPathPatterns("/student/**", "/view/student.html");
+                    .addPathPatterns("/student/**", "/view/student.html", "/view/student/**");
             registry.addInterceptor(new JwtInterceptor(jwtVerifier, "teacher"))
                     .addPathPatterns("/teacher/**", "/view/teacher.html");
         }

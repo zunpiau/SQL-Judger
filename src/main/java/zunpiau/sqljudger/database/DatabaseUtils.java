@@ -2,6 +2,7 @@ package zunpiau.sqljudger.database;
 
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.util.StringUtils;
 import zunpiau.sqljudger.database.ResultSetExtractor.MatrixResultSetExtractor;
 import zunpiau.sqljudger.database.entity.DataSet;
 import zunpiau.sqljudger.database.entity.ResultWrapper;
@@ -52,13 +53,14 @@ public final class DatabaseUtils {
 
     public static ResultWrapper excute(Connection connection, String schemaAndData, String execute)
             throws SQLException {
-        try (Statement statement1 = connection.createStatement()) {
-            statement1.execute(schemaAndData);
+        if (!StringUtils.isEmpty(schemaAndData)) {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(schemaAndData);
+            }
         }
         try (Statement statement = connection.createStatement()) {
             statement.execute(execute);
             ResultSet resultSet = statement.getResultSet();
-            System.out.println("resultSet = " + resultSet);
             if (resultSet != null) {
                 ArrayList<String> headers = getColumns(resultSet);
                 List<List<String>> data = MatrixResultSetExtractor.getInstance().extractData(resultSet);

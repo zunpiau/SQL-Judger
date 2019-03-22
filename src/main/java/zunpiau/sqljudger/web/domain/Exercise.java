@@ -1,5 +1,6 @@
 package zunpiau.sqljudger.web.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -27,29 +28,39 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Exercise implements Serializable {
 
     private static final int TYPE_OUTPUT = 1;
     private static final int TYPE_SCHEMA = 2;
     private static final long serialVersionUID = -5806651385169097504L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(length = 512, nullable = false)
     private String title;
+
     @JoinColumn(name = "teacher_number", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Teacher teacher;
+
     @Column(length = 4096, nullable = false)
     private String description;
+
     private int score;
+
     @Column(length = 2048)
     private String inputSQL;
+
     @Convert(converter = SimpleTablesJsonConverter.class)
     @Column(length = 2048)
     private List<SimpleTable> inputData;
+
     @Column(length = 2048)
     private String expectedSQL;
+
     @Convert(converter = ResultWrapperJsonConverter.class)
     @Column(length = 2048, nullable = false)
     private ResultWrapper expectedData;
@@ -58,34 +69,28 @@ public class Exercise implements Serializable {
         this.id = id;
     }
 
+    public Exercise(Long id, String inputSQL, int score, ResultWrapper expectedData) {
+        this.id = id;
+        this.inputSQL = inputSQL;
+        this.score = score;
+        this.expectedData = expectedData;
+    }
+
+    public Exercise(Long id, String title, String description, int score, String inputSQL,
+            List<SimpleTable> inputData) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.score = score;
+        this.inputSQL = inputSQL;
+        this.inputData = inputData;
+    }
+
     public Exercise(String title, String description, int score, ResultWrapper expectedData) {
         this.title = title;
         this.description = description;
         this.score = score;
         this.expectedData = expectedData;
-    }
-
-    public static class ResultWrapperJsonConverter implements AttributeConverter<ResultWrapper, String> {
-
-        private final ObjectMapper mapper = new ObjectMapper();
-
-        @Override
-        public String convertToDatabaseColumn(ResultWrapper attribute) {
-            try {
-                return mapper.writeValueAsString(attribute);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Could not convert to Json", e);
-            }
-        }
-
-        @Override
-        public ResultWrapper convertToEntityAttribute(String dbData) {
-            try {
-                return mapper.readValue(dbData, ResultWrapper.class);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not convert to ResultWrapper", e);
-            }
-        }
     }
 
     public static class SimpleTablesJsonConverter implements AttributeConverter<List<SimpleTable>, String> {
