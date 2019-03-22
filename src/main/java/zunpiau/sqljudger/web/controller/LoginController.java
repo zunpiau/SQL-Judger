@@ -80,7 +80,7 @@ public class LoginController {
             User user = optionalUser.get();
             if (encoder.matches(password, user.getPassword())) {
                 String token = JWT.create()
-                        .withClaim("number", user.getNumber())
+                        .withClaim(JwtInterceptor.JWT_CLAIM_NUMBER, user.getNumber())
                         .withClaim("name", user.getName())
                         .withExpiresAt(createDateAfter(expiration))
                         .sign(algorithm);
