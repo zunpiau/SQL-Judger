@@ -7,20 +7,23 @@ spring:
       password: 1122
       username: postgres
       driver-class-name: org.postgresql.Driver
-      maximum-pool-size: 2
+      maximum-pool-size: 4
+      minimum-idle: 4
       pool-name: main
   jpa:
     properties:
       hibernate:
+        dialect: zunpiau.sqljudger.web.domain.PostgreSQLDialectArray
         temp:
           use_jdbc_metadata_defaults: false
-    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    database-platform: zunpiau.sqljudger.web.domain.PostgreSQLDialectArray
     show-sql: true
     generate-ddl: true
     database: default
   resources:
     chain:
       cache: false
+    static-locations: "classpath:/dist/"
   data:
     rest:
       base-path: api
@@ -32,7 +35,7 @@ admin:
 jwt:
   header: Authorization
   secret: mySecret
-  expiration: 86400
+  expiration: 186400
 judger:
   datasource:
     hikari:
@@ -40,7 +43,8 @@ judger:
       password: 1122
       username: postgres
       driver-class-name: org.postgresql.Driver
-      maximum-pool-size: 2
+      maximum-pool-size: 4
+      minimum-idle: 4
       pool-name: judger
   task:
     exam:

@@ -1,23 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
-<head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1" name="viewport">
-  <link href="/lib/bootstrap.min.css" rel="stylesheet">
-  <link href="/lib/sidebar.css" rel="stylesheet">
-  <script src="/lib/jquery.min.js"></script>
-  <script src="/lib/bootstrap.min.js"></script>
-  <script src="/lib/vue.js"></script>
-  <script src="/lib/axios.js"></script>
-  <script src="/lib/commom.js"></script>
-  <title>Admin</title>
-</head>
-<body>
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow-sm">
-  <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL Judger</span>
-</nav>
-<div class="container-fluid">
-  <div class="row" id="vue_main">
+<style scoped> @import "./../lib/sidebar.css"; </style>
+<style scoped> @import "./../lib/common.css"; </style>
+<template>
+  <div class="row">
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
       <div class="sidebar-sticky">
         <nav class="nav nav-pills flex-column" id="nav_tabs">
@@ -25,15 +9,15 @@
             Dashboard
           </a>
           <a class="nav-link" data-toggle="pill" href="#teacher" role="tab"
-             v-on:click.once="loadTeachers">
+             v-on:click.once="loadEntity('/admin/teacher', teachers)">
             教师管理
           </a>
           <a class="nav-link" data-toggle="pill" href="#clazz" role="tab"
-             v-on:click.once="loadClazzs">
+             v-on:click.once="loadEntity('/admin/clazz', clazzs)">
             班级管理
           </a>
           <a class="nav-link" data-toggle="pill" href="#teaching" role="tab"
-             v-on:click.once="loadEntity('/admin/teaching', teachings);">
+             v-on:click.once="loadEntity('/admin/teaching', teachings)">
             授课管理
           </a>
           <a class="nav-link" data-toggle="pill" href="#student" role="tab"
@@ -299,10 +283,28 @@
       </div>
     </main>
   </div>
-</div>
+</template>
 <script>
-    const mainVue = new Vue({
-        el: '#vue_main',
+    import $ from 'jquery';
+    import "bootstrap/dist/js/bootstrap.js"
+
+    import 'bootstrap/dist/css/bootstrap.css'
+    import 'bootstrap-vue/dist/bootstrap-vue.css'
+    import * as common from '../lib/commom.js'
+
+    $('#teachingModal').on('show.bs.modal', loadIfNeeded);
+    $('#studentModal').on('show.bs.modal', loadIfNeeded);
+
+    function loadIfNeeded() {
+        if (mainVue.teachers.length === 0) {
+            mainVue.loadTeachers();
+        }
+        if (mainVue.clazzs.length === 0) {
+            mainVue.loadClazzs();
+        }
+    }
+
+    export default {
         data() {
             return {
                 teacher: {},
@@ -329,52 +331,32 @@
         methods: {
             loadEntity(url, entities) {
                 console.log(entities);
-                loadEntity(url, entities)
-            },
-            loadTeachers() {
-                loadEntity('/admin/teacher', this.teachers)
+                common.loadEntity(url, entities)
             },
             deleteTeacher(teacher) {
-                deleteEntity(`/admin/teacher/${teacher.number}`, this.teachers, teacher);
+                common.deleteEntity(`/admin/teacher/${teacher.number}`, this.teachers, teacher);
             },
             addTeacher() {
-                addEntity('/admin/teacher', this.teacher, this.teachers, $('#teacherModal'));
+                common.addEntity('/admin/teacher', this.teacher, this.teachers, $('#teacherModal'));
             },
             deleteStudent(student) {
-                deleteEntity(`/admin/student/${student.number}`, this.students, student);
+                common.deleteEntity(`/admin/student/${student.number}`, this.students, student);
             },
             addStudent() {
-                addEntity('/admin/student', this.student, this.students, $('#studentModal'));
-            },
-            loadClazzs() {
-                loadEntity('/admin/clazz', this.clazzs);
+                common.addEntity('/admin/student', this.student, this.students, $('#studentModal'));
             },
             deleteClazz(clazz) {
-                deleteEntity(`/admin/clazz/${clazz.id}`, this.clazzs, clazz);
+                common.deleteEntity(`/admin/clazz/${clazz.id}`, this.clazzs, clazz);
             },
             addClazz() {
-                addEntity('/admin/clazz', this.clazz, this.clazzs, $('#clazzModal'));
+                common.addEntity('/admin/clazz', this.clazz, this.clazzs, $('#clazzModal'));
             },
             deleteTeaching(teaching) {
-                deleteEntity(`/admin/teaching/${teaching.id}`, this.teachings, teaching);
+                common.deleteEntity(`/admin/teaching/${teaching.id}`, this.teachings, teaching);
             },
             addTeaching() {
-                addEntity('/admin/teaching', this.teaching, this.teachings, $('#teachingModal'));
+                common.addEntity('/admin/teaching', this.teaching, this.teachings, $('#teachingModal'));
             }
-        }
-    });
-
-    $('#teachingModal').on('show.bs.modal', loadIfNeeded);
-    $('#studentModal').on('show.bs.modal', loadIfNeeded);
-
-    function loadIfNeeded() {
-        if (mainVue.teachers.length === 0) {
-            mainVue.loadTeachers();
-        }
-        if (mainVue.clazzs.length === 0) {
-            mainVue.loadClazzs();
         }
     }
 </script>
-</body>
-</html>

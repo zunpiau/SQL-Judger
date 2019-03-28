@@ -1,18 +1,20 @@
-function replaceArray(oldAarray, newArray) {
+import axios from "axios";
+
+export function replaceArray(oldAarray, newArray) {
     oldAarray.splice(0, oldAarray.length, ...newArray);
 }
 
-function deleteElement(array, e) {
+export function deleteElement(array, e) {
     const index = array.indexOf(e);
     if (index >= 0)
         array.splice(index, 1);
 }
 
-function getUrlParams(name) {
+export function getUrlParams(name) {
     return new URLSearchParams(window.location.search).get(name);
 }
 
-function loadEntity(url, entities) {
+export function loadEntity(url, entities) {
     console.log(url);
     axios.get(url)
         .then(response => replaceArray(entities, response.data))
@@ -21,7 +23,7 @@ function loadEntity(url, entities) {
         })
 }
 
-function loadEntity2(url, entities) {
+export function loadEntity2(url, entities) {
     console.log(url);
     axios.get(url)
         .then(response => replaceArray(entities, response.data.data))
@@ -30,7 +32,7 @@ function loadEntity2(url, entities) {
         })
 }
 
-function deleteEntity(url, entities, entity) {
+export function deleteEntity(url, entities, entity) {
     axios.delete(url)
         .then((response) => {
             if (response.data.status === 200) {
@@ -44,7 +46,7 @@ function deleteEntity(url, entities, entity) {
         });
 }
 
-function addEntity(url, entity, entyties, modal) {
+export function addEntity(url, entity, entyties, modal) {
     axios.post(url, entity)
         .then(response => {
             if (response.data.status === 200) {
@@ -58,4 +60,3 @@ function addEntity(url, entity, entyties, modal) {
             console.log(reason);
         });
 }
-
