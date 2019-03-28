@@ -100,12 +100,18 @@ public class TeacherController {
 
     @PutMapping("exam/{id}/correct")
     public BaseResponse<?> correct(@PathVariable Long id, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
-        examService.correctAll(id, number);
-        System.out.println("TeacherController.correct" + System.currentTimeMillis());
+        final Exam exam = examService.findByIdAndTeacher(id, number);
+        examService.correctAll(exam);
         return BaseResponse.ok();
     }
 
-    @GetMapping("exam/{id}/answersheet")
+    @GetMapping("exam/{id}/exercise")
+    public BaseResponse<?> getExercise(@PathVariable Long id,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(examService.getExercise(id, number));
+    }
+
+    @GetMapping("exam/{id}/student")
     public BaseResponse<?> getAnswersheet(@PathVariable Long id,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         return BaseResponse.ok(examService.getAnswerSheet(id, number));

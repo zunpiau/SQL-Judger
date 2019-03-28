@@ -31,9 +31,9 @@ public class AnswerSheetService {
 
     @Async("postExecutor")
     @Transactional
-    public void save(AnswerSheet answerSheet, Set<Answer> answers, Long student) {
-        examService.checkExam(answerSheet.getExam(), student);
-        answerSheet.setStudent(student);
+    public void save(Long exam, Set<Answer> answers, Long student) {
+        examService.checkExam(exam, student);
+        AnswerSheet answerSheet = new AnswerSheet(exam, student);
         answerSheetRepository.save(answerSheet);
         for (Answer answer : answers) {
             answer.setAnswerSheet(answerSheet.getId());

@@ -1,5 +1,6 @@
 package zunpiau.sqljudger.web.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"exam_id", "student_number"}))
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnswerSheet implements Serializable {
 
     private static final long serialVersionUID = -8791912515407829578L;
@@ -36,4 +38,13 @@ public class AnswerSheet implements Serializable {
 
     private Integer score;
 
+    public AnswerSheet(Long id, Integer score) {
+        this.id = id;
+        this.score = score;
+    }
+
+    public AnswerSheet(Long exam, Long student) {
+        this.exam = exam;
+        this.student = student;
+    }
 }

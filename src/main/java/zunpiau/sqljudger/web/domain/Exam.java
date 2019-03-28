@@ -3,10 +3,9 @@ package zunpiau.sqljudger.web.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -15,8 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -42,12 +39,11 @@ public class Exam implements Serializable {
     private Long startTime;
     private Long endTime;
     private Integer status = 0;
-    @ElementCollection
-    @CollectionTable(name = "exam_exercise", joinColumns = @JoinColumn(nullable = false))
-    private Set<Long> exercises = new LinkedHashSet<>();
+    @Type(type = "zunpiau.sqljudger.web.domain.LongArrayUserType")
+    private Long[] exercises;
 
     public Exam(String title, Teaching teaching, Long startTime, Long endTime, Integer status,
-            LinkedHashSet<Long> exercises) {
+            Long[] exercises) {
         this.title = title;
         this.teaching = teaching;
         this.startTime = startTime;

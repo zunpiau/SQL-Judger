@@ -12,6 +12,11 @@ public interface AnswerSheetRepository extends CrudRepository<AnswerSheet, Long>
 
     boolean existsByExamAndStudent(Long exam, Long student);
 
+    AnswerSheet findByExamAndStudent(Long exam, Long student);
+
+    @Query("select new AnswerSheet(a.id, a.score) from AnswerSheet a where a.exam = ?1 and a.student = ?2")
+    AnswerSheet getScore(Long exam, Long student);
+
     List<AnswerSheet> findAllByExam(Long exam);
 
     @Modifying

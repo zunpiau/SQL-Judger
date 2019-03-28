@@ -54,12 +54,12 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         }
         final String requestURI = request.getRequestURI();
         if (requestURI.endsWith(".html")) {
-            final String from = URLEncoder.encode(requestURI + '?' + request.getQueryString(),
-                    StandardCharsets.UTF_8.name());
+            final String queryString = request.getQueryString();
+            String from = queryString == null ? requestURI : requestURI + '?' + queryString;
             final String location = new StringBuilder().append("/view/login.html?")
                     .append(REDIRECT_FROM)
                     .append('=')
-                    .append(from)
+                    .append(URLEncoder.encode(from, StandardCharsets.UTF_8.name()))
                     .toString();
             response.sendRedirect(location);
             return false;

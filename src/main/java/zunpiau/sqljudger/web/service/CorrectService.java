@@ -36,6 +36,7 @@ public class CorrectService {
     @Transactional
     public Future<AnswerSheet> correctAsync(AnswerSheet answerSheet, CountDownLatch latch,
             Map<Long, Exercise> exerciseMap) {
+        log.info("correct answersheetID: {}", answerSheet.getId());
         final long start = System.currentTimeMillis();
         final List<Answer> answers = answerRepository.findAllByAnswerSheet(answerSheet.getId());
         try {
@@ -56,6 +57,7 @@ public class CorrectService {
     }
 
     public Answer correct(Answer answer, Exercise exercise) {
+        log.info("correct answerID: {}", answer.getId());
         final long start = System.currentTimeMillis();
         final ResultWrapper wrapper = jdbcService.excute(exercise.getInputSQL(), answer.getInputSQL());
         answer.setInputData(wrapper);

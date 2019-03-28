@@ -19,6 +19,7 @@ import zunpiau.sqljudger.web.security.JwtInterceptor;
 import zunpiau.sqljudger.web.service.AnswerSheetService;
 import zunpiau.sqljudger.web.service.ExamService;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @RestController
@@ -61,13 +62,13 @@ public class StudentController {
     public BaseResponse<?> getExercise(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number,
             @PathVariable Long id) {
         final Exam exam = examService.checkExam(id, number);
-        return BaseResponse.ok(exerciseRepository.findAllById(exam.getExercises()));
+        return BaseResponse.ok(exerciseRepository.findAllByIdForStudent(Arrays.asList(exam.getExercises())));
     }
 
     @PostMapping(value = "exam/answer_sheet", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> postAnswerSheet(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number,
             @RequestBody AnswerSheetCreateDto dto) {
-        answerSheetService.save(dto.getAnswerSheet(), dto.getAnswers(), number);
+        answerSheetService.save(dto.getExam(), dto.getAnswers(), number);
         return BaseResponse.ok();
     }
 

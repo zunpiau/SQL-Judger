@@ -15,6 +15,7 @@ import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.controller.exception.AuthException;
 import zunpiau.sqljudger.web.controller.exception.ExamException;
 import zunpiau.sqljudger.web.controller.exception.NoEntityException;
+import zunpiau.sqljudger.web.controller.response.AnswerSheetDto;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
 import zunpiau.sqljudger.web.domain.Clazz;
 import zunpiau.sqljudger.web.domain.Exam;
@@ -24,6 +25,8 @@ import zunpiau.sqljudger.web.domain.Teaching;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -116,37 +119,58 @@ public class ExamService {
         return true;
     }
 
-    public List<AnswerSheet> getAnswerSheet(Long id, Long teacher) {
+    public List<Student> getStudents(Long id, Long teacher) {
+        final Exam exam = findByIdAndTeacher(id, teacher);
+        final Long clazz = exam.getTeaching().getClazz().getId();
+        return studentRepository.findAllByClazz_Id(clazz);
+    }
+
+    public List<Exercise> getExercise(Long id, Long teacher) {
+        final Exam exam = findByIdAndTeacher(id, teacher);
+        return exerciseRepository.findAllByIdIn(Arrays.asList(exam.getExercises()));
+    }
+
+    public List<AnswerSheetDto> getAnswerSheet(Long id, Long teacher) {
         final Exam exam = findByIdAndTeacher(id, teacher);
         if (exam.getStatus() != Exam.STATUS_CORRECTED) {
             throw new ExamException(STATUS_NON_CORRECT);
         }
-        return answerSheetRepository.findAllByExam(id);
+        final Long clazz = exam.getTeaching().getClazz().getId();
+        final List<Student> students = studentRepository.findAllByClazz_Id(clazz);
+        List<AnswerSheetDto> dtos = new ArrayList<>(students.size());
+        for (Student s : students) {
+            final AnswerSheet answerSheet = answerSheetRepository.getScore(id, s.getNumber());
+            dtos.add(new AnswerSheetDto(s.getNumber(), s.getName(), answerSheet));
+        }
+        return dtos;
     }
 
     @Async("examExecutor")
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Future<Void> correctAll(Long examId, Long teacher) {
+    public Future<Void> correctAll(Exam exam) {
+        log.info("correct examID: {}", exam.getId());
         long start = System.currentTimeMillis();
-        final Exam exam = findByIdAndTeacher(examId, teacher);
-        final List<AnswerSheet> answerSheets = answerSheetRepository.findAllByExam(examId);
-        final List<Exercise> exercises = exerciseRepository.findAllByIdForAnswer(exam.getExercises());
-        final Map<Long, Exercise> exerciseMap = exercises.stream()
-                .collect(Collectors.toMap(e -> e.getId(), Function.identity()));
-        examRepository.setStatus(examId, Exam.STATUS_CORRECTING);
-        CountDownLatch answerSheetLatch = new CountDownLatch(answerSheets.size());
-        for (AnswerSheet answerSheet : answerSheets) {
-            correctService.correctAsync(answerSheet, answerSheetLatch, exerciseMap);
-        }
-        try {
+        final List<AnswerSheet> answerSheets = answerSheetRepository.findAllByExam(exam.getId());
+        if (!answerSheets.isEmpty()) {
+            final List<Exercise> exercises = exerciseRepository
+                    .findAllByIdForAnswer(Arrays.asList(exam.getExercises()));
+            final Map<Long, Exercise> exerciseMap = exercises.stream()
+                    .collect(Collectors.toMap(e -> e.getId(), Function.identity()));
+            examRepository.setStatus(exam.getId(), Exam.STATUS_CORRECTING);
+            CountDownLatch answerSheetLatch = new CountDownLatch(answerSheets.size());
+            for (AnswerSheet answerSheet : answerSheets) {
+                correctService.correctAsync(answerSheet, answerSheetLatch, exerciseMap);
+            }
+            try {
 //            TimeUnit.SECONDS.sleep(10);
-            answerSheetLatch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+                answerSheetLatch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-        examRepository.setStatus(examId, Exam.STATUS_CORRECTED);
-        log.info("correct examID: {}, answersheets: {}, exercises: {}, time: {}",
-                exam.getId(), answerSheets.size(), exercises.size(), System.currentTimeMillis() - start);
+        examRepository.setStatus(exam.getId(), Exam.STATUS_CORRECTED);
+        log.info("correct examID: {}, answersheets: {}, time: {}",
+                exam.getId(), answerSheets.size(), System.currentTimeMillis() - start);
         return AsyncResult.forValue(null);
     }
 
