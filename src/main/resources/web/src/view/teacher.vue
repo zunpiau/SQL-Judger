@@ -11,14 +11,14 @@
             <a class="nav-link" data-toggle="pill" href="#exercise" role="tab" v-on:click.once="loadExercises">
               题目列表
             </a>
-            <a class="nav-link" data-toggle="pill" href="#add-exercise" role="tab" v-on:click.once="loadExercises">
+            <a class="nav-link" data-toggle="pill" href="#add-exercise" role="tab">
               创建题目
+            </a>
+            <a class="nav-link" data-toggle="pill" href="#testPaper" role="tab" v-on:click.once="loadTestPaper">
+              试卷列表
             </a>
             <a class="nav-link" data-toggle="pill" href="#exam" role="tab">
               考试安排
-            </a>
-            <a class="nav-link" data-toggle="pill" href="#add-exam" role="tab" v-on:click.once="loadExercises">
-              创建考试
             </a>
           </nav>
         </div>
@@ -57,35 +57,47 @@
         </div>
         <div class="tab-pane fade show" id="exercise" role="tabpanel">
           <h2 class="h2 mb-3">题目列表</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">标题</th>
-                <th scope="col">描述</th>
-                <th scope="col">分数</th>
-                <th scope="col">操作</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr v-for="exercise in exercises">
-                <th scope="row">{{ exercise.id }}</th>
-                <td class="exercise-title">{{ exercise.title }}</td>
-                <td class="exercise-description">{{ exercise.description }}</td>
-                <td>{{ exercise.score }}</td>
-                <td class="exercise-operation">
-                  <button class="btn btn-primary btn-sm" v-on:click="showExercise(exercise)">
-                    详情
+          <div class="input-group d-flex justify-content-end mb-3">
+            <button class="btn btn-primary" v-on:click="createTestPaper">创建试卷</button>
+          </div>
+          <div class="modal fade full-screen" id="createTestPaperModal" ref="createTestPaperModal" role="dialog"
+               tabindex="-1">
+            <div class="modal-dialog modal-lg full-screen" role="document">
+              <div class="modal-content full-screen">
+                <div class="modal-header">
+                  <h5 class="modal-title">创建试卷</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
                   </button>
-                  <button class="btn btn-danger btn-sm" v-if="deleteable(exercise)"
-                          v-on:click="deleteExercise(exercise)">
-                    删除
-                  </button>
-                </td>
-              </tr>
-              </tbody>
-            </table>
+                </div>
+                <div class="modal-body">
+                  <div class="input-group mb-3">
+                    <input class="form-control mr-2" placeholder="试卷名称" v-model="testPaper.title">
+                    <button class="btn btn-primary" v-on:click="addTestPaper">创建</button>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">标题</th>
+                        <th scope="col">描述</th>
+                        <th scope="col">分数</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr v-for="exercise in testPaper.selectExercises">
+                        <th scope="row">{{ exercise.id }}</th>
+                        <td>{{ exercise.title }}</td>
+                        <td>{{ exercise.description }}</td>
+                        <td><input type="number" v-model="exercise.score"></td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal fade" id="exerciseModal" role="dialog" tabindex="-1">
             <div class="modal-dialog modal-lg" role="document">
@@ -114,6 +126,39 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">标题</th>
+                <th scope="col">描述</th>
+                <th scope="col">分数</th>
+                <th scope="col">操作</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="exercise in exercises">
+                <th scope="row">
+                  <input type="checkbox" v-bind:value="exercise" v-model="testPaper.selectExercises">
+                  {{ exercise.id }}
+                </th>
+                <td class="exercise-title">{{ exercise.title }}</td>
+                <td class="exercise-description">{{ exercise.description }}</td>
+                <td>{{ exercise.score }}</td>
+                <td class="exercise-operation">
+                  <button class="btn btn-primary btn-sm mr-2" v-on:click="showExercise(exercise)">
+                    详情
+                  </button>
+                  <button class="btn btn-danger btn-sm" v-if="deleteable(exercise)"
+                          v-on:click="deleteExercise(exercise)">
+                    删除
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
           </div>
         </div>
         <div class="tab-pane fade show" id="add-exercise" role="tabpanel">
@@ -178,6 +223,104 @@
             <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExercise">完成</button>
           </section>
         </div>
+        <div class="tab-pane fade show" id="testPaper" role="tabpanel">
+          <h2 class="h2 mb-3">试卷列表</h2>
+          <div class="card mb-5 shadow-sm" v-for="testPaper, index in testPapers">
+            <div class="card-header">
+              <span class="h4">
+                {{ testPaper.id }}.{{ testPaper.title }}
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="card-text">创建人: {{ testPaper.teacher.number }}/
+                    {{ testPaper.teacher.name }}</p>
+                </div>
+                <div class="d-flex align-items-center">
+                  <button class="btn btn-primary mr-2" v-on:click="createExam(index)">创建考试</button>
+                  <button class="btn btn-danger" v-if="deleteable(testPaper)" v-on:click="deleteTestPaper(testPaper)">
+                    删除试卷
+                  </button>
+                </div>
+              </div>
+              <div class="text-center">
+                <a class="fa fa-chevron-down" data-toggle="collapse" role="button"
+                   v-bind:href="'#collapse-' + testPaper.id"></a>
+              </div>
+              <div :id="'collapse-' + testPaper.id" class="collapse">
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">标题</th>
+                      <th scope="col">描述</th>
+                      <th scope="col">分数</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="exerciseConfig in testPaper.exerciseConfigs">
+                      <th scope="row">{{ exerciseConfig.exercise.id }}</th>
+                      <td class="exercise-title">{{ exerciseConfig.exercise.title }}</td>
+                      <td class="exercise-description">{{ exerciseConfig.exercise.description }}</td>
+                      <td>{{ exerciseConfig.score }}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="createExamModal" ref="createExamModal" role="dialog"
+               tabindex="-1">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">创建考试</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <section>
+                    <div class="form-group">
+                      <label for="examTitleInput">标题</label>
+                      <input class="form-control" id="examTitleInput" placeholder="标题" required v-model="exam.title">
+                    </div>
+                    <div class="form-group">
+                      <label for="testPaperInput">试卷</label>
+                      <input class="form-control" disabled id="testPaperInput"
+                             v-bind:value="exam.testPaper.id + '.' + exam.testPaper.title">
+                    </div>
+                    <div class="form-group">
+                      <label>选择班级</label>
+                      <div class="form-check" v-for="teaching in teachings">
+                        <input class="form-check-input" type="checkbox" v-bind:value="teaching.clazz.id"
+                               v-model="checkedClazzs">
+                        <label class="form-check-label">
+                          {{ teaching.clazz.grade }} {{ teaching.clazz.name }}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="form-group form-inline">
+                      <label class="pr-2">考试开始时间</label>
+                      <date-picker :config="configs.start" @dp-change="onStartTimeChange"
+                                   v-model="startTime"></date-picker>
+                    </div>
+                    <div class="form-group form-inline">
+                      <label class="pr-2">考试结束时间</label>
+                      <date-picker :config="configs.end" @dp-change="onEndTimeChange" v-model="endTime"></date-picker>
+                    </div>
+                  </section>
+                  <section class="d-flex justify-content-center mt-5 mb-5">
+                    <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExam">完成</button>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="tab-pane fade show" id="exam" role="tabpanel">
           <h2 class="h2 mb-3">考试安排</h2>
           <div v-if=" this.exams.length === 0">
@@ -191,9 +334,10 @@
             <div class="card-body">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="card-text">考试时间: {{ unixEpochToString(exam.startTime) }} ~
-                    {{ unixEpochToString(exam.endTime) }}</p>
+                  <p class="card-text">考试时间: {{ unixEpochToString(exam.startTime) }} ~ {{
+                    unixEpochToString(exam.endTime) }}</p>
                   <p class="card-text">考试班级: {{ exam.teaching.clazz.grade }} {{ exam.teaching.clazz.name }}</p>
+                  <p class="card-text">试卷：{{ exam.testPaper.id }}.{{ exam.testPaper.title }}</p>
                 </div>
                 <div class="d-flex align-items-center">
                   <button class="btn btn-danger" v-if="cancelable(exam)" v-on:click="cancelExam(exam)">取消
@@ -208,75 +352,19 @@
             </div>
           </div>
         </div>
-        <div class="tab-pane fade show" id="add-exam" role="tabpanel">
-          <h2 class="h2 mb-3">创建考试</h2>
-          <section>
-            <h3 class="h3">基本信息</h3>
-            <div class="form-group">
-              <label for="examTitleInput">标题</label>
-              <input class="form-control" id="examTitleInput" placeholder="标题" required v-model="exam.title">
-            </div>
-            <div class="form-group">
-              <label>选择班级</label>
-              <div class="form-check" v-for="teaching in teachings">
-                <input class="form-check-input" type="checkbox" v-bind:value="teaching.clazz.id"
-                       v-model="checkedClazzs">
-                <label class="form-check-label">
-                  {{ teaching.clazz.grade }} {{ teaching.clazz.name }}
-                </label>
-              </div>
-            </div>
-            <div class="form-group form-inline">
-              <label class="pr-2">考试开始时间</label>
-              <date-picker :config="configs.start" @dp-change="onStartTimeChange" v-model="startTime"></date-picker>
-            </div>
-            <div class="form-group form-inline">
-              <label class="pr-2">考试结束时间</label>
-              <date-picker :config="configs.end" @dp-change="onEndTimeChange" v-model="endTime"></date-picker>
-            </div>
-            <label>选择题目</label>
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">标题</th>
-                  <th scope="col">分数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="exercise in exercises">
-                  <th scope="row">
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" v-bind:value="exercise.id"
-                             v-model="exam.exercises">
-                      <label class="form-check-label">{{ exercise.id }}</label>
-                    </div>
-                  </th>
-                  <td>{{ exercise.title }}</td>
-                  <td>{{ exercise.score }}</td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="d-flex justify-content-center mt-5 mb-5">
-            <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExam">完成</button>
-          </section>
-        </div>
       </main>
     </div>
   </div>
 </template>
 <style scoped> @import "./../lib/sidebar.css"; </style>
 <style scoped> @import "./../lib/common.css"; </style>
+<style scoped> @import "./../lib/icons.css"; </style>
 <style>
   .exercise-description {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 60ch;
+    max-width: 50ch;
   }
 
   .exercise-title {
@@ -287,40 +375,7 @@
   }
 
   .exercise-operation {
-    width: 8rem;
-  }
-
-  @font-face {
-    font-family: 'Glyphicons Halflings';
-    src: url('https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot');
-    src: url('https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.woff') format('woff'), url('https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');
-  }
-
-  .glyphicon {
-    position: relative;
-    top: 1px;
-    display: inline-block;
-    font-family: 'Glyphicons Halflings';
-    font-style: normal;
-    font-weight: normal;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .glyphicon-chevron-left:before {
-    content: "\e079";
-  }
-
-  .glyphicon-chevron-right:before {
-    content: "\e080";
-  }
-
-  .glyphicon-chevron-up:before {
-    content: "\e113";
-  }
-
-  .glyphicon-chevron-down:before {
-    content: "\e114";
+    width: 8.5rem;
   }
 </style>
 <script>
@@ -349,17 +404,13 @@
             return {
                 configs: {
                     start: {
-                        useCurrent: true,
-                        showClear: true,
-                        showClose: true,
+                        useCurrent: false,
                         minDate: moment(),
-                        maxDate: false
+                        maxDate: false,
                     },
                     end: {
-                        useCurrent: true,
-                        showClear: true,
-                        showClose: true,
-                        minDate: moment()
+                        useCurrent: false,
+                        minDate: moment(),
                     }
                 },
                 startTime: null,
@@ -375,6 +426,11 @@
                     expectedSQL: "",
                     expectedData: null,
                 },
+                testPapers: [],
+                testPaper: {
+                    title: null,
+                    selectExercises: [],
+                },
                 teachings: [],
                 exam: {
                     title: null,
@@ -384,7 +440,10 @@
                         teacher: {}
                     },
                     endTime: null,
-                    exercises: [],
+                    testPaper: {
+                        id: null,
+                        title: null,
+                    },
                 },
                 exams: [],
                 countExams: {
@@ -395,6 +454,7 @@
                 },
                 checkedClazzs: [],
                 selectExercise: {},
+
             }
         },
         async created() {
@@ -542,14 +602,14 @@
                 $('#exerciseModal').modal('show');
             },
             loadExercises() {
-                if (this.exercises.length === 0)
-                    common.loadEntity2("/teacher/exercise", this.exercises);
+                common.loadEntity2("/teacher/exercise", this.exercises);
             },
             deleteExercise(exercise) {
                 axios.delete(`/teacher/exercise/${exercise.id}`)
                     .then(res => {
                         if (res.data.status === 200 && res.data.data) {
-                            deleteElement(this.exercises, exercise);
+                            common.deleteElement(this.exercises, exercise);
+                            common.deleteElement(this.selectExercise, exercise);
                         } else if (res.data.status === 400) {
                             alert("该题目已被引用，无法删除");
                         }
@@ -583,6 +643,51 @@
             loadTeachings() {
                 common.loadEntity2("/teacher/teaching", this.teachings);
             },
+            loadTestPaper() {
+                common.loadEntity2("/teacher/testPaper", this.testPapers);
+            },
+            createTestPaper() {
+                if (this.testPaper.selectExercises.length === 0) {
+                    alert("请选择至少一道题目");
+                    return
+                }
+                $(this.$refs.createTestPaperModal).modal('show');
+            },
+            deleteTestPaper(testpaper) {
+                axios.delete(`/teacher/testPaper/${testpaper.id}`)
+                    .then(res => {
+                        if (res.data.status === 200 && res.data.data) {
+                            common.deleteElement(this.testPapers, testpaper);
+                        } else if (res.data.status === 400) {
+                            alert("该试卷已被引用，无法删除");
+                        }
+                    })
+            },
+            addTestPaper() {
+                const testPaperVo = {
+                    title: this.testPaper.title,
+                    exerciseConfigs: []
+                };
+                this.testPaper.selectExercises.forEach(e => {
+                    testPaperVo.exerciseConfigs.push({
+                        exercise: e.id,
+                        score: e.score,
+                    })
+                });
+                axios.post("/teacher/testPaper", testPaperVo)
+                    .then(res => {
+                        $(this.$refs.createTestPaperModal).modal('hide');
+                        this.testPapers.push(res.data.data);
+                    })
+                    .catch(res => {
+                        console.log(res);
+                    })
+            },
+            createExam(index) {
+                this.exam.testPaper.id = this.testPapers[index].id;
+                this.exam.testPaper.title = this.testPapers[index].title;
+                $(this.$refs.createExamModal).modal('show');
+            },
             addExam() {
                 console.log(this.exam);
                 if (!this.exam.title) {
@@ -599,10 +704,6 @@
                 }
                 if (!this.exam.endTime) {
                     alert("请设置考试结束时间");
-                    return
-                }
-                if (this.exam.exercises.length === 0) {
-                    alert("请选择至少选择一到题目");
                     return
                 }
                 this.checkedClazzs.forEach(clazz => {

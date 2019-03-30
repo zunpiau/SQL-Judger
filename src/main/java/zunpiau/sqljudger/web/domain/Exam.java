@@ -3,7 +3,6 @@ package zunpiau.sqljudger.web.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,17 +38,18 @@ public class Exam implements Serializable {
     private Long startTime;
     private Long endTime;
     private Integer status = 0;
-    @Type(type = "zunpiau.sqljudger.web.domain.LongArrayUserType")
-    private Long[] exercises;
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private TestPaper testPaper;
 
     public Exam(String title, Teaching teaching, Long startTime, Long endTime, Integer status,
-            Long[] exercises) {
+            TestPaper testPaper) {
         this.title = title;
         this.teaching = teaching;
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = status;
-        this.exercises = exercises;
+        this.testPaper = testPaper;
     }
 
     public Exam(Long id) {

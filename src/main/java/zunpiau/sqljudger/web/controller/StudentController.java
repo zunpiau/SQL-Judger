@@ -13,13 +13,11 @@ import zunpiau.sqljudger.web.BaseResponse;
 import zunpiau.sqljudger.web.Repository.ExerciseRepository;
 import zunpiau.sqljudger.web.Repository.StudentRepository;
 import zunpiau.sqljudger.web.controller.request.AnswerSheetCreateDto;
-import zunpiau.sqljudger.web.domain.Exam;
 import zunpiau.sqljudger.web.domain.Student;
 import zunpiau.sqljudger.web.security.JwtInterceptor;
 import zunpiau.sqljudger.web.service.AnswerSheetService;
 import zunpiau.sqljudger.web.service.ExamService;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 @RestController
@@ -55,14 +53,7 @@ public class StudentController {
     @GetMapping("exam/{id}")
     public BaseResponse<?> getExam(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number,
             @PathVariable Long id) {
-        return BaseResponse.ok(examService.checkExam(id, number));
-    }
-
-    @GetMapping("exam/{id}/exercise")
-    public BaseResponse<?> getExercise(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number,
-            @PathVariable Long id) {
-        final Exam exam = examService.checkExam(id, number);
-        return BaseResponse.ok(exerciseRepository.findAllByIdForStudent(Arrays.asList(exam.getExercises())));
+        return BaseResponse.ok(examService.getExamForStudent(id, number));
     }
 
     @PostMapping(value = "exam/answer_sheet", consumes = MediaType.APPLICATION_JSON_VALUE)

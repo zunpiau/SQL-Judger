@@ -16,17 +16,17 @@ import zunpiau.sqljudger.web.controller.exception.AuthException;
 import zunpiau.sqljudger.web.controller.exception.ExamException;
 import zunpiau.sqljudger.web.controller.exception.NoEntityException;
 import zunpiau.sqljudger.web.controller.response.AnswerSheetDto;
+import zunpiau.sqljudger.web.controller.response.ExamVo;
+import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
 import zunpiau.sqljudger.web.domain.Clazz;
 import zunpiau.sqljudger.web.domain.Exam;
-import zunpiau.sqljudger.web.domain.Exercise;
 import zunpiau.sqljudger.web.domain.Student;
 import zunpiau.sqljudger.web.domain.Teaching;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,19 +48,24 @@ public class ExamService {
     private final AnswerSheetRepository answerSheetRepository;
     private final ExamRepository examRepository;
     private final CorrectService correctService;
+    private final TestPaperService testPaperService;
+    private final ExerciseConfigService exerciseConfigService;
 
     @Autowired
     public ExamService(ExamRepository examRepository,
             TeachingRepository teachingRepository,
             ExerciseRepository exerciseRepository, StudentRepository studentRepository,
             AnswerSheetRepository answerSheetRepository,
-            CorrectService correctService) {
+            CorrectService correctService, TestPaperService testPaperService,
+            ExerciseConfigService exerciseConfigService) {
         this.examRepository = examRepository;
         this.teachingRepository = teachingRepository;
         this.exerciseRepository = exerciseRepository;
         this.studentRepository = studentRepository;
         this.answerSheetRepository = answerSheetRepository;
         this.correctService = correctService;
+        this.testPaperService = testPaperService;
+        this.exerciseConfigService = exerciseConfigService;
     }
 
     @Transactional
@@ -125,9 +130,9 @@ public class ExamService {
         return studentRepository.findAllByClazz_Id(clazz);
     }
 
-    public List<Exercise> getExercise(Long id, Long teacher) {
+    public List<ExerciseConfigVo> getExercise(Long id, Long teacher) {
         final Exam exam = findByIdAndTeacher(id, teacher);
-        return exerciseRepository.findAllByIdIn(Arrays.asList(exam.getExercises()));
+        return exerciseConfigService.getExercises(exam.getTestPaper());
     }
 
     public List<AnswerSheetDto> getAnswerSheet(Long id, Long teacher) {
@@ -152,9 +157,8 @@ public class ExamService {
         long start = System.currentTimeMillis();
         final List<AnswerSheet> answerSheets = answerSheetRepository.findAllByExam(exam.getId());
         if (!answerSheets.isEmpty()) {
-            final List<Exercise> exercises = exerciseRepository
-                    .findAllByIdForAnswer(Arrays.asList(exam.getExercises()));
-            final Map<Long, Exercise> exerciseMap = exercises.stream()
+            final List<ExerciseConfigVo> exercises = exerciseConfigService.getExercisesForAnswer(exam.getTestPaper());
+            final Map<Long, ExerciseConfigVo> exerciseMap = exercises.stream()
                     .collect(Collectors.toMap(e -> e.getId(), Function.identity()));
             examRepository.setStatus(exam.getId(), Exam.STATUS_CORRECTING);
             CountDownLatch answerSheetLatch = new CountDownLatch(answerSheets.size());
@@ -180,6 +184,11 @@ public class ExamService {
 
     public boolean isNonstart(Exam exam) {
         return exam.getStartTime() > Instant.now().getEpochSecond();
+    }
+
+    public ExamVo getExamForStudent(Long examId, Long student) {
+        final Exam exam = checkExam(examId, student);
+        return ExamVo.build(exam, testPaperService.getTestPaperForStudent(exam.getTestPaper()));
     }
 
     public Exam checkExam(Long examId, Long student) {

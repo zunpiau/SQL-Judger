@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'Glyphicons Halflings';
+    src: url('./glyphicons-halflings.woff') format('woff');
+}
+
+.fa {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings', serif;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+}
+
+.fa-chevron-left:before {
+    content: "\e079";
+}
+
+.fa-chevron-right:before {
+    content: "\e080";
+}
+
+.fa-chevron-up:before {
+    content: "\e113";
+}
+
+.fa-chevron-down:before {
+    content: "\e114";
+}
+
+.fa-clock-o:before {
+    content: "\e023";
+}
+
+.fa-calendar:before {
+    content: "\01F4C5";
+}

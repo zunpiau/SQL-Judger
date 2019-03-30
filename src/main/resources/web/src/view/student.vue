@@ -34,6 +34,7 @@
                 <div>
                   <p class="card-text">考试时间: {{ unixEpochToString(exam.startTime) }} ~
                     {{ unixEpochToString(exam.endTime) }}</p>
+                  <p class="card-text">试卷: {{ exam.testPaper.title }}</p>
                 </div>
                 <div class="align-middle">
                   <a :id="'btn-' + exam.id" class="btn btn-danger align-middle" target="_blank"

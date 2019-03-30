@@ -20,7 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"answersheet_id", "exercise_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"answersheet_id", "exercise_config_id"}))
 public class Answer implements Serializable {
 
     private static final long serialVersionUID = 4886508888579456004L;
@@ -30,8 +30,8 @@ public class Answer implements Serializable {
     private Long id;
 
     @Basic
-    @Column(nullable = false, name = "exercise_id")
-    private Long exercise;
+    @Column(nullable = false, name = "exercise_config_id")
+    private Long exerciseConfig;
 
     @Column(length = 2048)
     private String inputSQL;
@@ -45,8 +45,8 @@ public class Answer implements Serializable {
     @Column(name = "answersheet_id")
     private Long answerSheet;
 
-    public Answer(Long exercise, String inputSQL, ResultWrapper inputData, Long answerSheet) {
-        this.exercise = exercise;
+    public Answer(Long exerciseConfig, String inputSQL, ResultWrapper inputData, Long answerSheet) {
+        this.exerciseConfig = exerciseConfig;
         this.inputSQL = inputSQL;
         this.inputData = inputData;
         this.answerSheet = answerSheet;

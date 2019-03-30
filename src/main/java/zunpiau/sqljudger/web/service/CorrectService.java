@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import zunpiau.sqljudger.database.entity.ResultWrapper;
 import zunpiau.sqljudger.web.Repository.AnswerRepository;
 import zunpiau.sqljudger.web.Repository.AnswerSheetRepository;
+import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
 import zunpiau.sqljudger.web.domain.Answer;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
-import zunpiau.sqljudger.web.domain.Exercise;
 
 import java.util.List;
 import java.util.Map;
@@ -35,14 +35,14 @@ public class CorrectService {
     @Async("answersheetExecutor")
     @Transactional
     public Future<AnswerSheet> correctAsync(AnswerSheet answerSheet, CountDownLatch latch,
-            Map<Long, Exercise> exerciseMap) {
+            Map<Long, ExerciseConfigVo> exerciseMap) {
         log.info("correct answersheetID: {}", answerSheet.getId());
         final long start = System.currentTimeMillis();
         final List<Answer> answers = answerRepository.findAllByAnswerSheet(answerSheet.getId());
         try {
             int totalScore = 0;
             for (Answer answer : answers) {
-                correct(answer, exerciseMap.get(answer.getExercise()));
+                correct(answer, exerciseMap.get(answer.getExerciseConfig()));
                 answerRepository.merger(answer);
                 totalScore += answer.getScore();
             }
@@ -56,13 +56,14 @@ public class CorrectService {
         return AsyncResult.forValue(answerSheet);
     }
 
-    public Answer correct(Answer answer, Exercise exercise) {
+    public Answer correct(Answer answer, ExerciseConfigVo exerciseConfig) {
         log.info("correct answerID: {}", answer.getId());
         final long start = System.currentTimeMillis();
-        final ResultWrapper wrapper = jdbcService.excute(exercise.getInputSQL(), answer.getInputSQL());
+        final ResultWrapper wrapper = jdbcService
+                .excute(exerciseConfig.getExercise().getInputSQL(), answer.getInputSQL());
         answer.setInputData(wrapper);
-        if (wrapper.equals(exercise.getExpectedData())) {
-            answer.setScore(exercise.getScore());
+        if (wrapper.equals(exerciseConfig.getExercise().getExpectedData())) {
+            answer.setScore(exerciseConfig.getScore());
         } else {
             answer.setScore(0);
         }

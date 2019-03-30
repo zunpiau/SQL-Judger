@@ -12,3 +12,12 @@ pre {
 [role="main"] {
     padding-top: 64px; /* Space for fixed navbar */
 }
+
+.full-screen {
+    max-width: unset !important;
+    width: 100% !important;
+    height: 100%;
+    margin: 0;
+    top: 0;
+    left: 0;
+}

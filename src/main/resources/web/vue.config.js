@@ -1,5 +1,8 @@
 module.exports = {
-    outputDir: "../../../../target/classes/dist",
+    outputDir: '../../../../target/classes/dist',
+    configureWebpack: {
+        devtool: 'source-map'
+    },
     devServer: {
         proxy: {
             '/': {
@@ -8,6 +11,7 @@ module.exports = {
             }
         }
     },
+
     pages: {
         login: {
             entry: 'src/view/login.js',
@@ -46,4 +50,12 @@ module.exports = {
             title: 'Exam',
         },
     },
+
+    publicPath: undefined,
+    assetsDir: undefined,
+    runtimeCompiler: undefined,
+    productionSourceMap: false,
+    parallel: undefined,
+    css: undefined,
+    lintOnSave: false
 };

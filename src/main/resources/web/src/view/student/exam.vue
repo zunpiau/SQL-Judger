@@ -6,7 +6,6 @@
   #main {
     height: 100vh;
     overflow-y: auto;
-    margin-top: 56px;
   }
 
   .panel {
@@ -48,7 +47,8 @@
             选题
           </a>
           <div aria-labelledby="navbarDropdown" class="dropdown-menu">
-            <a class="dropdown-item" v-for="n in exercises.length" v-on:click="setPanel(n)">{{n}}</a>
+            <a class="dropdown-item" v-for="n in exam.testPaper.exerciseConfigs.length"
+               v-on:click="setPanel(n)">{{n}}</a>
           </div>
         </li>
       </ul>
@@ -61,13 +61,13 @@
     <main class="container-fluid" role="main">
       <div>
         <div :id="'exercise-' + index" :key="index" class="tab-pane fade show row d-none"
-             role="tabpanel" v-for="(exercise, index) in exercises">
+             role="tabpanel" v-for="(exerciseConfig, index) in exam.testPaper.exerciseConfigs">
           <div class="px-3 w-50 float-left panel">
             <div class="h3 d-flex justify-content-between">
-              <span>{{ index + 1 }}. {{ exercise.title }}</span>
-              <span class="badge badge-light">{{ exercise.score }}分</span>
+              <span>{{ index + 1 }}. {{ exerciseConfig.exercise.title }}</span>
+              <span class="badge badge-light">{{ exerciseConfig.score }}分</span>
             </div>
-            <pre>{{ exercise.description }}</pre>
+            <pre>{{ exerciseConfig.exercise.description }}</pre>
             <div class="mb-2">
             <span class="mt-1 font-weight-bold" data-toggle="collapse" v-bind:href="'#inputSQL-' + index">
               表结构
@@ -88,10 +88,10 @@
             </span>
             </div>
             <div :id="'inputSQL-' + index" class="collapse">
-              <pre class="code">{{ exercise.inputSQL }}</pre>
+              <pre class="code">{{ exerciseConfig.exercise.inputSQL }}</pre>
             </div>
             <span class="mt-1 font-weight-bold">初始数据</span>
-            <div v-for="table in exercise.inputData">
+            <div v-for="table in exerciseConfig.exercise.inputData">
               <label>表：{{ table.name }}</label>
               <table class="table table-striped">
                 <thead>
@@ -208,11 +208,8 @@
                 .then(res => {
                     handleResponse(res, res => this.exam = res.data.data);
                 });
-            await axios.get(`/student/exam/${this.exam.id}/exercise`)
-                .then(res => {
-                    handleResponse(res, res => this.exercises = res.data.data);
-                });
 
+            console.log(this.exam);
             this.backupKey = `exam-${this.exam.id}`;
 
             let backup;
@@ -222,15 +219,15 @@
                 console.log(e);
             }
             this.answerSheet.exam = this.exam.id;
-            this.exercises.forEach((e, i) => {
+            this.exam.testPaper.exerciseConfigs.forEach((e, i) => {
                 let inputSQL;
-                if (backup && backup.answers[i] && backup.answers[i].exercise === e.id) {
+                if (backup && backup.answers[i] && backup.answers[i].exerciseConfig === e.id) {
                     inputSQL = backup.answers[i].inputSQL
                 } else {
                     inputSQL = null
                 }
                 this.answerSheet.answers.push({
-                    exercise: e.id,
+                    exerciseConfig: e.id,
                     inputSQL: inputSQL
                 });
             });
@@ -254,15 +251,18 @@
 
             this.$nextTick(() => {
                 $("#exercise-0").addClass("active").removeClass("d-none");
-                $(`#exercise-${this.exercises.length - 1} button`).last().text("交卷");
+                $(`#exercise-${this.exam.testPaper.exerciseConfigs.length - 1} button`).last().text("交卷");
                 $("#exercise-0 button").first().attr("disabled", "true")
             })
         },
         data() {
             return {
-                time: 999999,
-                exam: {},
-                exercises: [],
+                time: null,
+                exam: {
+                    testPaper: {
+                        exerciseConfigs: []
+                    }
+                },
                 answerSheet: {
                     exam: null,
                     answers: [],
@@ -307,7 +307,7 @@
                 $(`#exercise-${(now)}`).addClass("active").removeClass("d-none");
             },
             nextPanel(index) {
-                if (index < this.exercises.length - 1) {
+                if (index < this.exam.testPaper.exerciseConfigs.length - 1) {
                     this.switchPanel(index, index + 1);
                 } else {
                     $('#submitModal').modal("show");
@@ -319,7 +319,7 @@
                 }
             },
             copySQL(index) {
-                navigator.clipboard.writeText(this.exercises[index].inputSQL).then(function () {
+                navigator.clipboard.writeText(this.exam.testPaper.exerciseConfigs[index].exercise.inputSQL).then(function () {
                     console.log('Async: Copying to clipboard was successful!');
                 }, function (err) {
                     console.error('Async: Could not copy text: ', err);

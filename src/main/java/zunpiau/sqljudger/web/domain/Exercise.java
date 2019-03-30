@@ -42,7 +42,7 @@ public class Exercise implements Serializable {
     @Column(length = 512, nullable = false)
     private String title;
 
-    @JoinColumn(name = "teacher_number", nullable = false)
+    @JoinColumn(name = "teacher_number")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Teacher teacher;
 

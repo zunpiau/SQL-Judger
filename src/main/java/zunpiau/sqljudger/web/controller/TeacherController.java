@@ -17,6 +17,7 @@ import zunpiau.sqljudger.web.Repository.ExerciseRepository;
 import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.controller.request.SQLExcuteRequest;
+import zunpiau.sqljudger.web.controller.request.TestPaperDto;
 import zunpiau.sqljudger.web.domain.Exam;
 import zunpiau.sqljudger.web.domain.Exercise;
 import zunpiau.sqljudger.web.domain.Teacher;
@@ -24,6 +25,7 @@ import zunpiau.sqljudger.web.security.JwtInterceptor;
 import zunpiau.sqljudger.web.service.AnswerSheetService;
 import zunpiau.sqljudger.web.service.ExamService;
 import zunpiau.sqljudger.web.service.JdbcService;
+import zunpiau.sqljudger.web.service.TestPaperService;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -35,17 +37,20 @@ public class TeacherController {
     private final ExerciseRepository exerciseRepository;
     private final TeachingRepository teachingRepository;
     private final TeacherRepository teacherRepository;
+    private final TestPaperService testPaperService;
     private final ExamService examService;
     private final AnswerSheetService answerSheetService;
     private final JdbcService jdbcService;
 
     @Autowired
     public TeacherController(ExerciseRepository exerciseRepository, TeachingRepository teachingRepository,
-            TeacherRepository teacherRepository, ExamService examService,
+            TeacherRepository teacherRepository,
+            TestPaperService testPaperService, ExamService examService,
             AnswerSheetService answerSheetService, JdbcService jdbcService) {
         this.exerciseRepository = exerciseRepository;
         this.teachingRepository = teachingRepository;
         this.teacherRepository = teacherRepository;
+        this.testPaperService = testPaperService;
         this.examService = examService;
         this.answerSheetService = answerSheetService;
         this.jdbcService = jdbcService;
@@ -74,6 +79,24 @@ public class TeacherController {
     public BaseResponse<?> deleteExercise(@PathVariable Long id,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         final int updateCount = exerciseRepository.deleteByIdAndTeacher(id, new Teacher(number));
+        return BaseResponse.ok(updateCount > 0);
+    }
+
+    @GetMapping("testPaper")
+    public BaseResponse<?> getTestPaper() {
+        return BaseResponse.ok(testPaperService.findAll());
+    }
+
+    @PostMapping("testPaper")
+    public BaseResponse<?> addTestPaper(@RequestBody TestPaperDto testPaperDto,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(testPaperService.save(testPaperDto, number));
+    }
+
+    @DeleteMapping("testPaper/{id}")
+    public BaseResponse<?> deleteTestPaper(@PathVariable Long id,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        final int updateCount = testPaperService.delete(id, number);
         return BaseResponse.ok(updateCount > 0);
     }
 
