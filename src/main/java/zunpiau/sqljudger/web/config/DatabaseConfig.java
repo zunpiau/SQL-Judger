@@ -18,10 +18,13 @@ import org.springframework.orm.jpa.vendor.AbstractJpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import zunpiau.sqljudger.web.util.RoutingDataSource;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableTransactionManagement
@@ -68,14 +71,14 @@ public class DatabaseConfig {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
-    @Bean(name = "judgerHikariConfig")
-    @ConfigurationProperties(prefix = "judger.datasource.hikari")
-    public HikariConfig judgerHikariConfig() {
-        return new HikariConfig();
-    }
-
     @Bean(name = "judgerDataSource")
-    public DataSource judgerDataSource(@Qualifier("judgerHikariConfig") HikariConfig hikariConfig) {
-        return new HikariDataSource(hikariConfig);
+    public DataSource judgerDataSource(MutliDataSourceConfig dataSourceConfig,
+            @Qualifier("dataSource") DataSource dataSource) {
+        final List<DataSource> dataSources = new ArrayList<>();
+        for (HikariConfig c : dataSourceConfig.getDatasources()) {
+            HikariDataSource hikariDataSource = new HikariDataSource(c);
+            dataSources.add(hikariDataSource);
+        }
+        return new RoutingDataSource(dataSources, dataSource);
     }
 }

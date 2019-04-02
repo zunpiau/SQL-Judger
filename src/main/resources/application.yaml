@@ -37,31 +37,38 @@ jwt:
   secret: mySecret
   expiration: 186400
 judger:
-  datasource:
-    hikari:
-      jdbc-url: jdbc:postgresql://localhost:5432/judger_test
+  datasources:
+    - jdbc-url: jdbc:postgresql://127.0.0.1:5432/judger_test
       password: 1122
       username: postgres
       driver-class-name: org.postgresql.Driver
-      maximum-pool-size: 4
-      minimum-idle: 4
-      pool-name: judger
+      maximum-pool-size: 2
+      minimum-idle: 2
+      pool-name: psql1
+
+    - jdbc-url: jdbc:postgresql://127.0.0.2:5432/judger_test
+      password: 1122
+      username: postgres
+      driver-class-name: org.postgresql.Driver
+      maximum-pool-size: 2
+      minimum-idle: 2
+      pool-name: psql2
   task:
     exam:
       thread-name-prefix: exam-
       pool:
-        max-size: ${judger.datasource.hikari.maximum-pool-size}
-        core-size: ${judger.datasource.hikari.maximum-pool-size}
+        max-size: 2
+        core-size: 2
         queue-capacity: 10
     answersheet:
       thread-name-prefix: answerSheet-
       pool:
-        max-size: ${judger.datasource.hikari.maximum-pool-size}
-        core-size: ${judger.datasource.hikari.maximum-pool-size}
+        max-size: 3
+        core-size: 3
         queue-capacity: 100
     post:
       thread-name-prefix: post-
       pool:
-        max-size: ${judger.datasource.hikari.maximum-pool-size}
-        core-size: ${judger.datasource.hikari.maximum-pool-size}
+        max-size: 3
+        core-size: 3
         queue-capacity: 200
