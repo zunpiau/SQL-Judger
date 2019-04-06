@@ -712,7 +712,7 @@
                         .then(res => {
                             console.log(res.data);
                             if (res.data.status === 200) {
-                                alert("已添加");
+                                $(this.$refs.createExamModal).modal('hide');
                                 this.exams.push(res.data.data);
                             }
                         })

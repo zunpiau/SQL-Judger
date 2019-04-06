@@ -23,7 +23,7 @@ module.exports = {
             entry: 'src/view/admin.js',
             template: 'src/template/index.html',
             filename: 'view/admin.html',
-            title: 'Login',
+            title: 'Admin',
         },
         teacher: {
             entry: 'src/view/teacher.js',
@@ -47,7 +47,7 @@ module.exports = {
             entry: 'src/view/teacher/review.js',
             template: 'src/template/index.html',
             filename: 'view/teacher/review.html',
-            title: 'Exam',
+            title: 'Review',
         },
     },
 

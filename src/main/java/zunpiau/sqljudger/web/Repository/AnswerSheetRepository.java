@@ -14,6 +14,9 @@ public interface AnswerSheetRepository extends CrudRepository<AnswerSheet, Long>
 
     AnswerSheet findByExamAndStudent(Long exam, Long student);
 
+    @Query("select a.id from AnswerSheet a where a.id = ?1 and a.student = ?2")
+    Long getIdByExamAndStudent(Long exam, Long student);
+
     @Query("select new AnswerSheet(a.id, a.score) from AnswerSheet a where a.exam = ?1 and a.student = ?2")
     AnswerSheet getScore(Long exam, Long student);
 

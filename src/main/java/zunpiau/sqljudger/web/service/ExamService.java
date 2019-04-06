@@ -7,9 +7,9 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import zunpiau.sqljudger.web.Repository.AnswerRepository;
 import zunpiau.sqljudger.web.Repository.AnswerSheetRepository;
 import zunpiau.sqljudger.web.Repository.ExamRepository;
-import zunpiau.sqljudger.web.Repository.ExerciseRepository;
 import zunpiau.sqljudger.web.Repository.StudentRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.controller.exception.AuthException;
@@ -18,6 +18,7 @@ import zunpiau.sqljudger.web.controller.exception.NoEntityException;
 import zunpiau.sqljudger.web.controller.response.AnswerSheetDto;
 import zunpiau.sqljudger.web.controller.response.ExamVo;
 import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
+import zunpiau.sqljudger.web.domain.Answer;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
 import zunpiau.sqljudger.web.domain.Clazz;
 import zunpiau.sqljudger.web.domain.Exam;
@@ -43,29 +44,29 @@ import static zunpiau.sqljudger.web.controller.exception.ExamException.*;
 public class ExamService {
 
     private final TeachingRepository teachingRepository;
-    private final ExerciseRepository exerciseRepository;
     private final StudentRepository studentRepository;
     private final AnswerSheetRepository answerSheetRepository;
     private final ExamRepository examRepository;
     private final CorrectService correctService;
     private final TestPaperService testPaperService;
     private final ExerciseConfigService exerciseConfigService;
+    private final AnswerRepository answerRepository;
 
     @Autowired
     public ExamService(ExamRepository examRepository,
-            TeachingRepository teachingRepository,
-            ExerciseRepository exerciseRepository, StudentRepository studentRepository,
+            TeachingRepository teachingRepository, StudentRepository studentRepository,
             AnswerSheetRepository answerSheetRepository,
             CorrectService correctService, TestPaperService testPaperService,
-            ExerciseConfigService exerciseConfigService) {
+            ExerciseConfigService exerciseConfigService,
+            AnswerRepository answerRepository) {
         this.examRepository = examRepository;
         this.teachingRepository = teachingRepository;
-        this.exerciseRepository = exerciseRepository;
         this.studentRepository = studentRepository;
         this.answerSheetRepository = answerSheetRepository;
         this.correctService = correctService;
         this.testPaperService = testPaperService;
         this.exerciseConfigService = exerciseConfigService;
+        this.answerRepository = answerRepository;
     }
 
     @Transactional
@@ -141,13 +142,37 @@ public class ExamService {
             throw new ExamException(STATUS_NON_CORRECT);
         }
         final Long clazz = exam.getTeaching().getClazz().getId();
+        final Long[] exerciseConfigs = exam.getTestPaper().getExerciseConfigs();
         final List<Student> students = studentRepository.findAllByClazz_Id(clazz);
         List<AnswerSheetDto> dtos = new ArrayList<>(students.size());
         for (Student s : students) {
-            final AnswerSheet answerSheet = answerSheetRepository.getScore(id, s.getNumber());
-            dtos.add(new AnswerSheetDto(s.getNumber(), s.getName(), answerSheet));
+            AnswerSheetDto answerSheetDto = new AnswerSheetDto(s.getNumber(), s.getName(), exam.getId());
+            final AnswerSheet answerSheet = answerSheetRepository.findByExamAndStudent(exam.getId(), s.getNumber());
+            if (answerSheet != null) {
+                final List<Answer> answers = new ArrayList<>(exerciseConfigs.length);
+                for (Long exerciseConfig : exerciseConfigs) {
+                    final Answer answer = answerRepository
+                            .findByExerciseConfigAndAnswerSheet(exerciseConfig, answerSheet.getId());
+                    answers.add(answer);
+                }
+                answerSheetDto.setScore(answerSheet.getScore());
+                answerSheetDto.setAnswers(answers);
+                answerSheetDto.setAnswerSheet(answerSheet.getId());
+            }
+            dtos.add(answerSheetDto);
         }
         return dtos;
+    }
+
+    @Transactional
+    public int updateScore(Long answerSheet, List<Answer> answers) {
+        int total = 0;
+        for (Answer answer : answers) {
+            total += answer.getScore();
+            answerRepository.updateScore(answer.getId(), answer.getScore());
+        }
+        answerSheetRepository.setScore(answerSheet, total);
+        return total;
     }
 
     @Async("examExecutor")

@@ -18,6 +18,7 @@ import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.controller.request.SQLExcuteRequest;
 import zunpiau.sqljudger.web.controller.request.TestPaperDto;
+import zunpiau.sqljudger.web.controller.request.UpdateScoreDto;
 import zunpiau.sqljudger.web.domain.Exam;
 import zunpiau.sqljudger.web.domain.Exercise;
 import zunpiau.sqljudger.web.domain.Teacher;
@@ -146,9 +147,9 @@ public class TeacherController {
         return BaseResponse.ok(answerSheetService.findAllByExam_Id(id, number));
     }
 
-    @PutMapping("answersheet")
-    public BaseResponse<?> updateScore() {
-        return null;
+    @PutMapping("answersheet/{id}/answer")
+    public BaseResponse<?> updateScore(@PathVariable Long id, @RequestBody UpdateScoreDto updateScoreDto) {
+        return BaseResponse.ok(examService.updateScore(id, updateScoreDto.getAnswers()));
     }
 
     @GetMapping("teaching")

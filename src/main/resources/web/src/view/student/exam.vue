@@ -8,11 +8,6 @@
     overflow-y: auto;
   }
 
-  .panel {
-    height: calc(100vh - 64px);
-    overflow-y: auto;
-  }
-
   .panel button {
     width: 5rem;
   }
