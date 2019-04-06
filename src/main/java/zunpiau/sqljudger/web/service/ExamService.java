@@ -18,6 +18,7 @@ import zunpiau.sqljudger.web.controller.exception.NoEntityException;
 import zunpiau.sqljudger.web.controller.response.AnswerSheetDto;
 import zunpiau.sqljudger.web.controller.response.ExamVo;
 import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
+import zunpiau.sqljudger.web.controller.response.ScoreVo;
 import zunpiau.sqljudger.web.domain.Answer;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
 import zunpiau.sqljudger.web.domain.Clazz;
@@ -85,6 +86,16 @@ public class ExamService {
         return optionalExam.orElseThrow(() -> new NoEntityException(NoEntityException.STATUS_NO_EXAM));
     }
 
+    public ScoreVo getScore(Long examId, Long student) {
+        Exam exam = findByIdAndStudent(examId, student);
+        final Integer score = exam.getTestPaper().getScore();
+        final AnswerSheet answerSheet = answerSheetRepository.findByExamAndStudent(examId, student);
+        if (answerSheet == null) {
+            return new ScoreVo(examId, score, null);
+        }
+        return new ScoreVo(examId, score, answerSheet.getScore());
+    }
+
     @Transactional
     public List<Exam> findByTeacher(Long teacher) {
         return examRepository.findAllByTeaching_Teacher_Number(teacher);
@@ -118,10 +129,18 @@ public class ExamService {
         return exam;
     }
 
-    @Transactional
     public boolean cancelExam(Long examId, Long teacherNumber) {
+        return setStatus(examId, teacherNumber, Exam.STATUS_CANCEL);
+    }
+
+    public boolean setScoreViewable(Long examId, Long teacherNumber) {
+        return setStatus(examId, teacherNumber, Exam.STATUS_REVIEWED);
+    }
+
+    @Transactional
+    public boolean setStatus(Long examId, Long teacherNumber, int status) {
         findByIdAndTeacher(examId, teacherNumber);
-        examRepository.setStatus(examId, Exam.STATUS_CANCEL);
+        examRepository.setStatus(examId, status);
         return true;
     }
 

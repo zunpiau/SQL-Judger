@@ -54,14 +54,17 @@ public class TestPaperService {
         TestPaper testPaper = new TestPaper();
         testPaper.setTeacher(new Teacher(number));
         testPaper.setTitle(testPaperDto.getTitle());
+        int score = 0;
         final ExerciseConfig[] exerciseConfigs = testPaperDto.getExerciseConfigs();
         for (ExerciseConfig exerciseConfig : exerciseConfigs) {
             exerciseConfigRepository.save(exerciseConfig);
+            score += exerciseConfig.getScore();
         }
         Long[] exerciseConfigIds = new Long[exerciseConfigs.length];
         for (int i = 0; i < exerciseConfigs.length; i++) {
             exerciseConfigIds[i] = exerciseConfigs[i].getId();
         }
+        testPaper.setScore(score);
         testPaper.setExerciseConfigs(exerciseConfigIds);
         testPaperRepository.save(testPaper);
         return testPaper;

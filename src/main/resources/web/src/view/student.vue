@@ -38,8 +38,24 @@
                 </div>
                 <div class="align-middle">
                   <a :id="'btn-' + exam.id" class="btn btn-danger align-middle" target="_blank"
-                     v-bind:href="'/view/student/exam.html?id=' + exam.id" v-show="answerable(exam)">进入考试
+                     v-bind:href="'/view/student/exam.html?id=' + exam.id" v-if="answerable(exam)">进入考试
                   </a>
+                  <button class="btn btn-primary" v-if="exam.status === 4" v-on:click="viewScore(exam)">查看分数</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="scoreModal" ref="scoreModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">考试分数</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p class="h5">{{ score.score ? score.score + '分' : '缺考' }}/{{ score.total }}分</p>
                 </div>
               </div>
             </div>
@@ -57,6 +73,7 @@
     import "bootstrap/dist/js/bootstrap.js"
     import Vue from 'vue'
     import BootstrapVue from 'bootstrap-vue'
+    import axios from 'axios'
 
     import 'bootstrap/dist/css/bootstrap.css'
     import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -70,6 +87,10 @@
             return {
                 exercises: [],
                 exams: [],
+                score: {
+                    total: null,
+                    score: null,
+                }
             }
         },
         created() {
@@ -110,6 +131,13 @@
             loadExams() {
                 common.loadEntity("/student/exam", this.exams);
             },
+            viewScore(exam) {
+                axios.get(`/student/exam/${exam.id}/score`)
+                    .then(res => {
+                        this.score = res.data.data;
+                        $(this.$refs.scoreModal).modal('show');
+                    })
+            }
         }
     };
 </script>

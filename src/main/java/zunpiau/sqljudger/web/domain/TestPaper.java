@@ -31,4 +31,6 @@ public class TestPaper {
     @Type(type = "zunpiau.sqljudger.web.domain.LongArrayUserType")
     private Long[] exerciseConfigs;
 
+    private Integer score;
+
 }

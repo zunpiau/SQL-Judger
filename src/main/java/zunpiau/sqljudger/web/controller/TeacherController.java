@@ -117,6 +117,12 @@ public class TeacherController {
         return BaseResponse.ok(examService.cancelExam(id, number));
     }
 
+    @PutMapping("exam/{id}/public")
+    public BaseResponse<?> publicExam(@PathVariable Long id,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(examService.setScoreViewable(id, number));
+    }
+
     @GetMapping("exam")
     public BaseResponse<?> getExam(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         return BaseResponse.ok(examService.findByTeacher(number));

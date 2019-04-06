@@ -63,4 +63,9 @@ public class StudentController {
         return BaseResponse.ok();
     }
 
+    @GetMapping("exam/{id}/score")
+    public BaseResponse<?> getScore(@PathVariable Long id, @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(examService.getScore(id, number));
+    }
+
 }

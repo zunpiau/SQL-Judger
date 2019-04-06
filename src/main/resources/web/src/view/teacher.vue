@@ -344,6 +344,12 @@
                   </button>
                   <button class="btn btn-primary" v-if="correctable(exam)" v-on:click="correctExam(exam, $event)">改卷
                   </button>
+                  <button class="btn btn-secondary mr-2" v-if="publicable(exam)" v-on:click="publicScore(exam)">
+                    公布成绩
+                  </button>
+                  <button class="btn btn-secondary mr-2" v-if="exam.status === 4" v-on:click="exportScore(exam)">
+                    导出成绩
+                  </button>
                   <a class="btn btn-secondary" target="_blank" v-bind:href="'/view/teacher/review.html?id=' + exam.id"
                      v-if="reviewable(exam)">复查
                   </a>
@@ -540,6 +546,9 @@
             reviewable(exam) {
                 return exam.status >= 3 && moment().isAfter(exam.endTime * 1000);
             },
+            publicable(exam) {
+                return exam.status === 3 && moment().isAfter(exam.endTime * 1000);
+            },
             unixEpochToString(second) {
                 return moment.unix(second).format("YYYY-MM-DD HH:mm");
             },
@@ -727,6 +736,15 @@
                     .then(res => {
                         console.log(res);
                         exam.status = 1;
+                        this.classifyExams();
+                    })
+                    .catch(reason => console.log(reason));
+            },
+            publicScore(exam) {
+                axios.put(`/teacher/exam/${exam.id}/public`)
+                    .then(res => {
+                        console.log(res);
+                        exam.status = 4;
                         this.classifyExams();
                     })
                     .catch(reason => console.log(reason));
