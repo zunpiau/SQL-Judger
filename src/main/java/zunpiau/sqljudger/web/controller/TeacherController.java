@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import zunpiau.sqljudger.web.BaseResponse;
 import zunpiau.sqljudger.web.Repository.ExerciseRepository;
 import zunpiau.sqljudger.web.Repository.TeacherRepository;
@@ -28,12 +30,14 @@ import zunpiau.sqljudger.web.domain.Teacher;
 import zunpiau.sqljudger.web.security.JwtInterceptor;
 import zunpiau.sqljudger.web.service.AnswerSheetService;
 import zunpiau.sqljudger.web.service.ExamService;
+import zunpiau.sqljudger.web.service.ExerciseService;
 import zunpiau.sqljudger.web.service.JdbcService;
 import zunpiau.sqljudger.web.service.TestPaperService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -41,6 +45,7 @@ import java.util.Optional;
 public class TeacherController {
 
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseService exerciseService;
     private final TeachingRepository teachingRepository;
     private final TeacherRepository teacherRepository;
     private final TestPaperService testPaperService;
@@ -49,11 +54,13 @@ public class TeacherController {
     private final JdbcService jdbcService;
 
     @Autowired
-    public TeacherController(ExerciseRepository exerciseRepository, TeachingRepository teachingRepository,
+    public TeacherController(ExerciseRepository exerciseRepository,
+            ExerciseService exerciseService, TeachingRepository teachingRepository,
             TeacherRepository teacherRepository,
             TestPaperService testPaperService, ExamService examService,
             AnswerSheetService answerSheetService, JdbcService jdbcService) {
         this.exerciseRepository = exerciseRepository;
+        this.exerciseService = exerciseService;
         this.teachingRepository = teachingRepository;
         this.teacherRepository = teacherRepository;
         this.testPaperService = testPaperService;
@@ -79,6 +86,19 @@ public class TeacherController {
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         exercise.setTeacher(new Teacher(number));
         return BaseResponse.ok(exerciseRepository.save(exercise));
+    }
+
+    @PostMapping("exercise/import")
+    public BaseResponse<?> importExercise(@RequestParam MultipartFile file,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        try {
+            final List<Exercise> exercises = exerciseService.convertExercise(file);
+            exerciseService.batchAdd(exercises, number);
+            return BaseResponse.ok(exercises.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new BaseResponse<>(5000, null, null);
+        }
     }
 
     @DeleteMapping("exercise/{id}")

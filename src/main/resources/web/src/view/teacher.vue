@@ -59,6 +59,7 @@
           <h2 class="h2 mb-3">题目列表</h2>
           <div class="input-group d-flex justify-content-end mb-3">
             <button class="btn btn-primary" v-on:click="createTestPaper">创建试卷</button>
+            <button class="btn btn-secondary ml-2" data-target="#importModal" data-toggle="modal">导入题目</button>
           </div>
           <div class="modal fade full-screen" id="createTestPaperModal" ref="createTestPaperModal" role="dialog"
                tabindex="-1">
@@ -123,6 +124,28 @@
                   <pre class="code"><code>{{ selectExercise.expectedSQL }}</code></pre>
                   期望输出
                   <p class="code">{{ JSON.stringify(selectExercise.expectedData) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="importModal" ref="importModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">导入题目</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="fileInput">请选择 Excel 文件进行导入</label>
+                    <input
+                        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                        class="form-control-file" id="fileInput" ref="fileInput"
+                        type="file">
+                    <button @click="uploadFile" class="btn btn-primary mt-3">上传</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -747,6 +770,24 @@
                         console.log(res);
                         exam.status = 4;
                         this.classifyExams();
+                    })
+                    .catch(reason => console.log(reason));
+            },
+            uploadFile() {
+                const files = this.$refs.fileInput.files;
+                if (files.length === 0) {
+                    return
+                }
+                const formData = new FormData();
+                formData.append('file', files[0]);
+                axios.post("/teacher/exercise/import", formData)
+                    .then(res => {
+                        if (res.data.status === 200) {
+                            alert(`上传了${res.data.data}条记录，正在导入系统中`);
+                            $(this.$refs.importModal).modal('hide')
+                        } else {
+                            alert("文件格式有误")
+                        }
                     })
                     .catch(reason => console.log(reason));
             }

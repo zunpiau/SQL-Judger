@@ -93,6 +93,14 @@ public class Exercise implements Serializable {
         this.expectedData = expectedData;
     }
 
+    public Exercise(String title, String description, int score, String inputSQL, String expectedSQL) {
+        this.title = title;
+        this.description = description;
+        this.score = score;
+        this.inputSQL = inputSQL;
+        this.expectedSQL = expectedSQL;
+    }
+
     public static class SimpleTablesJsonConverter implements AttributeConverter<List<SimpleTable>, String> {
 
         private final ObjectMapper mapper = new ObjectMapper();
