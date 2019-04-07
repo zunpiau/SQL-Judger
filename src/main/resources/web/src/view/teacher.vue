@@ -82,7 +82,7 @@
                         <th scope="col">#</th>
                         <th scope="col">标题</th>
                         <th scope="col">描述</th>
-                        <th scope="col">分数</th>
+                        <th scope="col">分数/总分 {{ total }}</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -483,7 +483,7 @@
                 },
                 checkedClazzs: [],
                 selectExercise: {},
-
+                total: 0,
             }
         },
         async created() {
@@ -502,6 +502,14 @@
         watch: {
             exams() {
                 this.classifyExams();
+            },
+            testPaper: {
+                handler() {
+                    let t = 0;
+                    this.testPaper.selectExercises.forEach(e => t += Number.parseInt(e.score));
+                    this.total = t;
+                },
+                deep: true,
             }
         },
         computed: {
