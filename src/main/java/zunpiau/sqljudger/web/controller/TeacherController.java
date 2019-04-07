@@ -1,7 +1,10 @@
 package zunpiau.sqljudger.web.controller;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +31,8 @@ import zunpiau.sqljudger.web.service.ExamService;
 import zunpiau.sqljudger.web.service.JdbcService;
 import zunpiau.sqljudger.web.service.TestPaperService;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -145,6 +150,14 @@ public class TeacherController {
     public BaseResponse<?> getAnswersheet(@PathVariable Long id,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         return BaseResponse.ok(examService.getAnswerSheet(id, number));
+    }
+
+    @GetMapping("exam/{id}/score/export")
+    public void exportScore(HttpServletResponse response, @PathVariable Long id,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) throws IOException {
+        response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        final XSSFWorkbook workbook = examService.exportScore(id, number);
+        workbook.write(response.getOutputStream());
     }
 
     @GetMapping("answersheet/{id}/answers")

@@ -347,10 +347,11 @@
                   <button class="btn btn-secondary mr-2" v-if="publicable(exam)" v-on:click="publicScore(exam)">
                     公布成绩
                   </button>
-                  <button class="btn btn-secondary mr-2" v-if="exam.status === 4" v-on:click="exportScore(exam)">
+                  <a class="btn btn-primary mr-2" v-bind:download="`${exam.title}-${exam.teaching.clazz.name}.xls`"
+                     v-bind:href="`/teacher/exam/${exam.id}/score/export`" v-if="exam.status === 4">
                     导出成绩
-                  </button>
-                  <a class="btn btn-secondary" target="_blank" v-bind:href="'/view/teacher/review.html?id=' + exam.id"
+                  </a>
+                  <a class=" btn btn-secondary" target="_blank" v-bind:href="'/view/teacher/review.html?id=' + exam.id"
                      v-if="reviewable(exam)">复查
                   </a>
                 </div>

@@ -1,6 +1,9 @@
 package zunpiau.sqljudger.web.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -155,6 +158,7 @@ public class ExamService {
         return exerciseConfigService.getExercises(exam.getTestPaper());
     }
 
+
     public List<AnswerSheetDto> getAnswerSheet(Long id, Long teacher) {
         final Exam exam = findByIdAndTeacher(id, teacher);
         if (exam.getStatus() != Exam.STATUS_CORRECTED) {
@@ -250,6 +254,34 @@ public class ExamService {
             throw new ExamException(STATUS_ANSWERED);
         }
         return exam;
+    }
+
+    public XSSFWorkbook exportScore(Long id, Long number) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Sheet1");
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("姓名");
+        header.createCell(1).setCellValue("学号");
+        header.createCell(2).setCellValue("成绩");
+        final Exam exam = findByIdAndTeacher(id, number);
+        if (exam.getStatus() != Exam.STATUS_REVIEWED) {
+            throw new ExamException(STATUS_NON_CORRECT);
+        }
+        final Long clazz = exam.getTeaching().getClazz().getId();
+        final List<Student> students = studentRepository.findAllByClazz_Id(clazz);
+        for (int i = 0; i < students.size(); i++) {
+            Student s = students.get(i);
+            final AnswerSheet answerSheet = answerSheetRepository.findByExamAndStudent(exam.getId(), s.getNumber());
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(s.getName());
+            row.createCell(1).setCellValue(s.getNumber());
+            if (answerSheet != null) {
+                row.createCell(2).setCellValue(answerSheet.getScore());
+            } else {
+                row.createCell(2).setCellValue("缺考");
+            }
+        }
+        return workbook;
     }
 
     private void checkTeaching(Long teachingId, Long teacher) {
