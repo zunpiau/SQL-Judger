@@ -56,7 +56,8 @@
         </div>
         <div class="tab-pane fade show" id="exercise" role="tabpanel">
           <h2 class="h2 mb-3">题目列表</h2>
-          <div class="input-group d-flex justify-content-end mb-3">
+          <div class="input-group form-inline d-flex justify-content-end mb-3">
+            <input @keyup.enter="filterExercise" class="form-control col-2 mr-2" placeholder="过滤，回车确定" v-model="filter">
             <button class="btn btn-primary" v-on:click="createTestPaper">创建试卷</button>
             <button class="btn btn-secondary ml-2" data-target="#importModal" data-toggle="modal">导入题目</button>
           </div>
@@ -161,7 +162,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="exercise in exercises">
+              <tr v-for="exercise in filteredExercise">
                 <th scope="row">
                   <input type="checkbox" v-bind:value="exercise" v-model="testPaper.selectExercises">
                   {{ exercise.id }}
@@ -484,6 +485,8 @@
                 checkedClazzs: [],
                 selectExercise: {},
                 total: 0,
+                filter: "",
+                filteredExercise: [],
             }
         },
         async created() {
@@ -500,6 +503,9 @@
                 });
         },
         watch: {
+            exercises() {
+                this.filterExercise();
+            },
             exams() {
                 this.classifyExams();
             },
@@ -524,6 +530,13 @@
             }
         },
         methods: {
+            filterExercise() {
+                if (this.filter === null || this.filter === "") {
+                    common.replaceArray(this.filteredExercise, this.exercises);
+                }
+                const filtered = this.exercises.filter(e => e.title.indexOf(this.filter) !== -1 || e.description.indexOf(this.filter) !== -1);
+                common.replaceArray(this.filteredExercise, filtered);
+            },
             onStartTimeChange(e) {
                 console.log(e.date.unix());
                 this.exam.startTime = e.date.unix();
@@ -649,7 +662,7 @@
                     .then(res => {
                         if (res.data.status === 200 && res.data.data) {
                             common.deleteElement(this.exercises, exercise);
-                            common.deleteElement(this.selectExercise, exercise);
+                            common.deleteElement(this.testPaper.selectExercises, exercise);
                         } else if (res.data.status === 400) {
                             alert("该题目已被引用，无法删除");
                         }
