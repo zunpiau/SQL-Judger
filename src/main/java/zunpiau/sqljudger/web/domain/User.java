@@ -24,7 +24,7 @@ public abstract class User {
     @Column(length = 60, nullable = false)
     private String password;
 
-    public User(Long number) {
+    protected User(Long number) {
         this.number = number;
     }
 

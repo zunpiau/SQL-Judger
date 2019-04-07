@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Table(indexes = @Index(columnList = "name"))
 @Data
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 @NoArgsConstructor
 public class Teacher extends User implements Serializable {
 

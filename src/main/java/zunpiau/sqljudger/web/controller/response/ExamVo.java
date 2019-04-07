@@ -12,7 +12,7 @@ public class ExamVo {
     private String title;
     private Long startTime;
     private Long endTime;
-    private Integer status = 0;
+    private Integer status;
     private TestPaperVo testPaper;
 
     public static ExamVo build(Exam exam, TestPaperVo testPaperVo) {

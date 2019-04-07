@@ -90,11 +90,11 @@
         </div>
         <div class="fixed-bottom fixed-right-bottom mb-3">
           <div class="d-flex justify-content-between bg-white">
-            <button class="btn btn-secondary" v-on:click="prevPanel(index)">上一题</button>
+            <button class="btn btn-secondary" v-on:click="prevPanel">上一题</button>
             <button :disabled="students[studentIndex].answers === null" class="btn btn-danger"
                     v-if="exerciseIndex === exerciseConfigs.length - 1" v-on:click="modifyScore">提交成绩
             </button>
-            <button class="btn btn-primary" v-on:click="nextPanel(index)">下一题</button>
+            <button class="btn btn-primary" v-on:click="nextPanel">下一题</button>
           </div>
         </div>
 
@@ -157,13 +157,13 @@
                 this.studentIndex = index;
                 this.exerciseIndex = 0;
             },
-            prevPanel(index) {
+            prevPanel() {
                 this.exerciseIndex = (this.exerciseIndex + this.exerciseConfigs.length - 1) % this.exerciseConfigs.length;
                 if (this.exerciseIndex === this.exerciseConfigs.length - 1) {
                     this.studentIndex = (this.studentIndex + this.students.length - 1) % this.students.length;
                 }
             },
-            nextPanel(index) {
+            nextPanel() {
                 this.exerciseIndex = (this.exerciseIndex + 1) % this.exerciseConfigs.length;
                 if (this.exerciseIndex === 0) {
                     this.studentIndex = (this.studentIndex + 1) % this.students.length;

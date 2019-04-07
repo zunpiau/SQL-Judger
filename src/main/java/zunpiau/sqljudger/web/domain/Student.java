@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Table(indexes = @Index(columnList = "name"))
 @Data
 @ToString(exclude = "clazz", callSuper = true)
-@EqualsAndHashCode(exclude = "clazz", callSuper = false)
+@EqualsAndHashCode(exclude = "clazz")
 @NoArgsConstructor
 public class Student extends User implements Serializable {
 

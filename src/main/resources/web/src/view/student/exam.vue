@@ -54,15 +54,15 @@
               </span>
     </nav>
     <main class="container-fluid" role="main">
-        <div :id="'exercise-' + index" :key="index" class="tab-pane fade show row d-none"
-             role="tabpanel" v-for="(exerciseConfig, index) in exam.testPaper.exerciseConfigs">
-          <div class="px-3 w-50 float-left panel">
-            <div class="h3 d-flex justify-content-between">
-              <span>{{ index + 1 }}. {{ exerciseConfig.exercise.title }}</span>
-              <span class="badge badge-light">{{ exerciseConfig.score }}分</span>
-            </div>
-            <pre>{{ exerciseConfig.exercise.description }}</pre>
-            <div class="mb-2">
+      <div :id="'exercise-' + index" :key="index" class="tab-pane fade show row d-none"
+           role="tabpanel" v-for="(exerciseConfig, index) in exam.testPaper.exerciseConfigs">
+        <div class="px-3 w-50 float-left panel">
+          <div class="h3 d-flex justify-content-between">
+            <span>{{ index + 1 }}. {{ exerciseConfig.exercise.title }}</span>
+            <span class="badge badge-light">{{ exerciseConfig.score }}分</span>
+          </div>
+          <pre>{{ exerciseConfig.exercise.description }}</pre>
+          <div class="mb-2">
             <span class="mt-1 font-weight-bold" data-toggle="collapse" v-bind:href="'#inputSQL-' + index">
               表结构
               <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +70,7 @@
             <path d="M0 0h24v24H0z" fill="none"></path>
           </svg>
             </span>
-              <span v-on:click="copySQL(index)">
+            <span v-on:click="copySQL(index)">
               <svg height="24" viewBox="0 0 1024 1024" width="24" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M571.52 909.44H280.96c-61.44 0-111.36-49.92-111.36-111.36V387.2c0-61.44 49.92-111.36 111.36-111.36h290.56c61.44 0 111.36 49.92 111.36 111.36v410.88c0 61.44-49.92 111.36-111.36 111.36z m-290.56-569.6c-26.24 0-47.36 21.12-47.36 47.36v410.88c0 26.24 21.12 47.36 47.36 47.36h290.56c26.24 0 47.36-21.12 47.36-47.36V387.2c0-26.24-21.12-47.36-47.36-47.36H280.96z"
@@ -80,36 +80,36 @@
                 fill="#515151"></path>
           </svg>
             </span>
-            </div>
-            <div :id="'inputSQL-' + index" class="collapse">
-              <pre class="code">{{ exerciseConfig.exercise.inputSQL }}</pre>
-            </div>
-            <span class="mt-1 font-weight-bold">初始数据</span>
-            <div v-for="table in exerciseConfig.exercise.inputData">
-              <label>表：{{ table.name }}</label>
-              <table class="table table-striped">
-                <thead>
-                <tr>
-                  <th scope="col" v-for="column in table.columns">{{ column }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="row in table.data">
-                  <td v-for="item in row">{{ item }}</td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
           </div>
-          <div class="px-3 w-50 float-left panel">
-            <textarea class="form-control" placeholder="请写下 SQL 语句"
-                      v-model="answerSheet.answers[index].inputSQL"></textarea>
-            <div class="d-flex justify-content-between">
-              <button class="btn btn-secondary mt-1" v-on:click="prevPanel(index)">上一题</button>
-              <button class="btn btn-primary mt-1" v-on:click="nextPanel(index)">下一题</button>
-            </div>
+          <div :id="'inputSQL-' + index" class="collapse">
+            <pre class="code">{{ exerciseConfig.exercise.inputSQL }}</pre>
+          </div>
+          <span class="mt-1 font-weight-bold">初始数据</span>
+          <div v-for="table in exerciseConfig.exercise.inputData">
+            <label>表：{{ table.name }}</label>
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th scope="col" v-for="column in table.columns">{{ column }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="row in table.data">
+                <td v-for="item in row">{{ item }}</td>
+              </tr>
+              </tbody>
+            </table>
           </div>
         </div>
+        <div class="px-3 w-50 float-left panel">
+            <textarea class="form-control" placeholder="请写下 SQL 语句"
+                      v-model="answerSheet.answers[index].inputSQL"></textarea>
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary mt-1" v-on:click="prevPanel(index)">上一题</button>
+            <button class="btn btn-primary mt-1" v-on:click="nextPanel(index)">下一题</button>
+          </div>
+        </div>
+      </div>
     </main>
     <div class="modal fade" id="submitModal" role="dialog" tabindex="-1">
       <div class="modal-dialog" role="document">
@@ -159,7 +159,6 @@
     import 'bootstrap-vue/dist/bootstrap-vue.css'
     import * as common from '../../lib/commom.js'
 
-    Vue.component(VueCountdown.name, VueCountdown);
     Vue.use(BootstrapVue);
     moment.locale('zh-cn');
 
@@ -191,6 +190,9 @@
     }
 
     export default {
+        components: {
+            'countdown': VueCountdown
+        },
         created: async function () {
             const examId = common.getUrlParams("id");
             if (examId == null) {

@@ -51,7 +51,8 @@ public class ExerciseConfigService {
         return exercises;
     }
 
-    private ExerciseConfigVo toVo(ExerciseConfig exerciseConfig, Function<Long, Optional<Exercise>> exerciseFunction) {
+    private static ExerciseConfigVo toVo(ExerciseConfig exerciseConfig,
+            Function<Long, Optional<Exercise>> exerciseFunction) {
         final Optional<Exercise> optionalExercise = exerciseFunction.apply(exerciseConfig.getExercise());
         final Exercise exercise = optionalExercise
                 .orElseThrow(() -> new NoEntityException(NoEntityException.STATUS_NO_EXERCISE));
