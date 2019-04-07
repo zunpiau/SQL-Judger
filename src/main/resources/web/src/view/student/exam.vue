@@ -54,7 +54,6 @@
               </span>
     </nav>
     <main class="container-fluid" role="main">
-      <div>
         <div :id="'exercise-' + index" :key="index" class="tab-pane fade show row d-none"
              role="tabpanel" v-for="(exerciseConfig, index) in exam.testPaper.exerciseConfigs">
           <div class="px-3 w-50 float-left panel">
@@ -111,7 +110,6 @@
             </div>
           </div>
         </div>
-      </div>
     </main>
     <div class="modal fade" id="submitModal" role="dialog" tabindex="-1">
       <div class="modal-dialog" role="document">

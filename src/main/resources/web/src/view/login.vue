@@ -7,9 +7,7 @@
   body {
     display: -ms-flexbox;
     display: flex;
-    -ms-flex-align: center;
     align-items: center;
-    text-align: center;
     padding-top: 40px;
     padding-bottom: 40px;
     background-color: #f5f5f5;
@@ -46,7 +44,7 @@
   }
 </style>
 <template>
-  <form action="/login" class="form-signin" id="form" method="post">
+  <form action="/login" class="form-signin text-center" id="form" method="post">
     <h1 class="h3 mb-3 font-weight-normal">SQL Judger</h1>
     <input class="form-control" name="number" placeholder="学号/教工号" required type="text">
     <input class="form-control" name="password" placeholder="密码" required type="password">
@@ -74,7 +72,6 @@
 
     import 'bootstrap/dist/css/bootstrap.css'
     import 'bootstrap-vue/dist/bootstrap-vue.css'
-    import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
 
     Vue.use(BootstrapVue);
 
