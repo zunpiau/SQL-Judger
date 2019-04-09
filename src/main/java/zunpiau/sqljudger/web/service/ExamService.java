@@ -161,7 +161,7 @@ public class ExamService {
 
     public List<AnswerSheetDto> getAnswerSheet(Long id, Long teacher) {
         final Exam exam = findByIdAndTeacher(id, teacher);
-        if (exam.getStatus() != Exam.STATUS_CORRECTED) {
+        if (exam.getStatus() < Exam.STATUS_CORRECTED) {
             throw new ExamException(STATUS_NON_CORRECT);
         }
         final Long clazz = exam.getTeaching().getClazz().getId();
