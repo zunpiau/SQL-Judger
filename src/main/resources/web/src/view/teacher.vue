@@ -8,16 +8,16 @@
               Dashboard
             </a>
             <a class="nav-link" data-toggle="pill" href="#exercise" role="tab" v-on:click.once="loadExercises">
-              题目列表
+              题目管理
             </a>
             <a class="nav-link" data-toggle="pill" href="#add-exercise" role="tab">
               创建题目
             </a>
             <a class="nav-link" data-toggle="pill" href="#testPaper" role="tab" v-on:click.once="loadTestPaper">
-              试卷列表
+              试卷管理
             </a>
             <a class="nav-link" data-toggle="pill" href="#exam" role="tab">
-              考试安排
+              考试管理
             </a>
           </nav>
         </div>
@@ -370,8 +370,9 @@
                   <button class="btn btn-secondary mr-2" v-if="publicable(exam)" v-on:click="publicScore(exam)">
                     公布成绩
                   </button>
-                  <a class="btn btn-primary mr-2" v-bind:download="`${exam.title}-${exam.teaching.clazz.name}.xls`"
-                     v-bind:href="`/teacher/exam/${exam.id}/score/export`" v-if="exam.status === 4">
+                  <a class="btn btn-primary mr-2" v-bind:download="filename(exam)"
+                     v-bind:href="`/teacher/exam/${exam.id}/score/export`"
+                     v-if="exam.status === 4">
                     导出成绩
                   </a>
                   <a class=" btn btn-secondary" target="_blank" v-bind:href="'/view/teacher/review.html?id=' + exam.id"
@@ -530,6 +531,10 @@
             }
         },
         methods: {
+            filename(exam) {
+                const date = moment.unix(exam.startTime).format("MMMDo");
+                return `${date}-${exam.title}-${exam.teaching.clazz.name}.xls`
+            },
             filterExercise() {
                 if (this.filter === null || this.filter === "") {
                     common.replaceArray(this.filteredExercise, this.exercises);
