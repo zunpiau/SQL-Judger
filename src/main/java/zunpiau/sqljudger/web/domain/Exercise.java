@@ -14,6 +14,8 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -48,6 +50,10 @@ public class Exercise implements Serializable {
 
     @Column(length = 4096, nullable = false)
     private String description;
+
+    @Column
+    @Enumerated(EnumType.ORDINAL)
+    private ExerciseType type;
 
     private int score;
 

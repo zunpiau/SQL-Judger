@@ -10,9 +10,6 @@
             <a class="nav-link" data-toggle="pill" href="#exercise" role="tab" v-on:click.once="loadExercises">
               题目管理
             </a>
-            <a class="nav-link" data-toggle="pill" href="#add-exercise" role="tab">
-              创建题目
-            </a>
             <a class="nav-link" data-toggle="pill" href="#testPaper" role="tab" v-on:click.once="loadTestPaper">
               试卷管理
             </a>
@@ -57,9 +54,12 @@
         <div class="tab-pane fade show" id="exercise" role="tabpanel">
           <h2 class="h2 mb-3">题目列表</h2>
           <div class="input-group form-inline d-flex justify-content-end mb-3">
-            <input @keyup.enter="filterExercise" class="form-control col-2 mr-2" placeholder="过滤，回车确定" v-model="filter">
-            <button class="btn btn-primary" v-on:click="createTestPaper">创建试卷</button>
-            <button class="btn btn-secondary ml-2" data-target="#importModal" data-toggle="modal">导入题目</button>
+            <b-dropdown class="mr-2" text="题目类型">
+              <b-dropdown-item @click="onTypeSelect('')">全部</b-dropdown-item>
+              <b-dropdown-item @click="onTypeSelect(type)" v-for="type in exerciseTypes">{{ type }}</b-dropdown-item>
+            </b-dropdown>
+            <button class="btn btn-secondary mr-2" data-target="#importModal" data-toggle="modal">导入题目</button>
+            <button class="btn btn-primary" data-target="#addExerciseModal" data-toggle="modal">创建题目</button>
           </div>
           <div class="modal fade full-screen" id="createTestPaperModal" ref="createTestPaperModal" role="dialog"
                tabindex="-1">
@@ -96,6 +96,97 @@
                       </tbody>
                     </table>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="addExerciseModal" ref="addExerciseModal" role="dialog"
+               tabindex="-1">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">创建题目</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <section class="mt-3">
+                    <h3 class="h3">基本信息</h3>
+                    <div class="form-group">
+                      <label for="exerciseTitleInput">标题</label>
+                      <input class="form-control" id="exerciseTitleInput" placeholder="标题" required
+                             v-model="exercise.title">
+                    </div>
+                    <div class="form-group">
+                      <label for="scoreInput">分数</label>
+                      <input class="form-control" id="scoreInput" min="0" placeholder="分数" type="number"
+                             v-model="exercise.score">
+                    </div>
+                    <div class="form-group">
+                      <label for="exerciseTypeDropdown">题目类型</label>
+                      <div class="dropdown" id="exerciseTypeDropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" type="button">
+                          {{ exercise.type === '' ? '请选择' : exercise.type}}
+                        </button>
+                        <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
+                          <a @click="exercise.type = type" class="dropdown-item" v-for="type in exerciseTypes">
+                            {{ type }}</a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="describeInput">题目描述</label>
+                      <textarea class="form-control" id="describeInput" required rows="3"
+                                v-model="exercise.description"></textarea>
+                    </div>
+                  </section>
+                  <section class="mt-5">
+                    <h3 class="h3">输入数据</h3>
+                    <div class="form-group">
+                      <label for="inputSQLInput">表结构和初始数据</label>
+                      <textarea class="form-control" id="inputSQLInput" placeholder="SQL语句，可为空" rows="3"
+                                v-model="exercise.inputSQL"></textarea>
+                      <div class="d-flex justify-content-end">
+                        <button :disabled="disableRunSQL" class="btn btn-outline-secondary mt-1" id="inputBtn"
+                                type="button"
+                                v-on:click="getInputData">
+                          生成输入数据
+                        </button>
+                      </div>
+                    </div>
+                    <div v-for="table in exercise.inputData">
+                      <label>表格：{{ table.name }}</label>
+                      <table class="table table-striped">
+                        <thead>
+                        <tr>
+                          <th scope="col" v-for="column in table.columns">{{ column }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="row in table.data">
+                          <td v-for="item in row">{{ item }}</td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <section class="mt-5">
+                    <h3 class="h3">期望输出</h3>
+                    <div class="form-group">
+                      <textarea class="form-control" placeholder="SQL语句" rows="3"
+                                v-model="exercise.expectedSQL"></textarea>
+                      <div class="d-flex justify-content-end mt-1">
+                        <button class="btn btn-outline-secondary" type="button" v-on:click="getexpectedData">生成期望输出
+                        </button>
+                      </div>
+                    </div>
+                    <textarea class="form-control" placeholder="期望输出预览" readonly
+                              rows="3">{{ expectedDataJson }}</textarea>
+                  </section>
+                  <section class="d-flex justify-content-center mt-5 mb-5">
+                    <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExercise">完成</button>
+                  </section>
                 </div>
               </div>
             </div>
@@ -163,10 +254,7 @@
               </thead>
               <tbody>
               <tr v-for="exercise in filteredExercise">
-                <th scope="row">
-                  <input type="checkbox" v-bind:value="exercise" v-model="testPaper.selectExercises">
-                  {{ exercise.id }}
-                </th>
+                <th scope="row">{{ exercise.id }}</th>
                 <td class="exercise-title">{{ exercise.title }}</td>
                 <td class="exercise-description">{{ exercise.description }}</td>
                 <td>{{ exercise.score }}</td>
@@ -183,68 +271,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-        <div class="tab-pane fade show" id="add-exercise" role="tabpanel">
-          <h2 class="h2 mb-3">创建题目</h2>
-          <section class="mt-3">
-            <h3 class="h3">基本信息</h3>
-            <div class="form-group">
-              <label for="exerciseTitleInput">标题</label>
-              <input class="form-control" id="exerciseTitleInput" placeholder="标题" required v-model="exercise.title">
-            </div>
-            <div class="form-group">
-              <label for="scoreInput">分数</label>
-              <input class="form-control" id="scoreInput" min="0" placeholder="分数" type="number"
-                     v-model="exercise.score">
-            </div>
-            <div class="form-group">
-              <label for="describeInput">题目描述</label>
-              <textarea class="form-control" id="describeInput" required rows="3"
-                        v-model="exercise.description"></textarea>
-            </div>
-          </section>
-          <section class="mt-5">
-            <h3 class="h3">输入数据</h3>
-            <div class="form-group">
-              <label for="inputSQLInput">表结构和初始数据</label>
-              <textarea class="form-control" id="inputSQLInput" placeholder="SQL语句，可为空" rows="3"
-                        v-model="exercise.inputSQL"></textarea>
-              <div class="d-flex justify-content-end">
-                <button :disabled="disableRunSQL" class="btn btn-outline-secondary mt-1" id="inputBtn" type="button"
-                        v-on:click="getInputData">
-                  生成输入数据
-                </button>
-              </div>
-            </div>
-            <div v-for="table in exercise.inputData">
-              <label>表格：{{ table.name }}</label>
-              <table class="table table-striped">
-                <thead>
-                <tr>
-                  <th scope="col" v-for="column in table.columns">{{ column }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="row in table.data">
-                  <td v-for="item in row">{{ item }}</td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-          <section class="mt-5">
-            <h3 class="h3">期望输出</h3>
-            <div class="form-group">
-              <textarea class="form-control" placeholder="SQL语句" rows="3" v-model="exercise.expectedSQL"></textarea>
-              <div class="d-flex justify-content-end mt-1">
-                <button class="btn btn-outline-secondary" type="button" v-on:click="getexpectedData">生成期望输出</button>
-              </div>
-            </div>
-            <textarea class="form-control" placeholder="期望输出预览" readonly rows="3">{{ expectedDataJson }}</textarea>
-          </section>
-          <section class="d-flex justify-content-center mt-5 mb-5">
-            <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExercise">完成</button>
-          </section>
         </div>
         <div class="tab-pane fade show" id="testPaper" role="tabpanel">
           <h2 class="h2 mb-3">试卷列表</h2>
@@ -408,6 +434,11 @@
   .exercise-operation {
     width: 8.5rem;
   }
+
+  #exerciseTypeDropdown .btn-outline-primary {
+    color: unset !important;
+    border-color: #ced4da;
+  }
 </style>
 <script>
     import axios from 'axios';
@@ -433,6 +464,9 @@
         },
         data() {
             return {
+                exerciseTypes: [
+                    "简单查询", "多表查询", "条件", "创建表", "修改表", "INSERT", "DELETE", "UPDATE"
+                ],
                 configs: {
                     start: {
                         useCurrent: false,
@@ -450,6 +484,7 @@
                 exercises: [],
                 exercise: {
                     title: "",
+                    type: "",
                     description: "",
                     score: "10",
                     inputSQL: "",
@@ -487,6 +522,7 @@
                 selectExercise: {},
                 total: 0,
                 filter: "",
+                typeFilter: "",
                 filteredExercise: [],
             }
         },
@@ -531,15 +567,18 @@
             }
         },
         methods: {
+            onTypeSelect(type) {
+                this.typeFilter = type;
+                this.filterExercise();
+            },
             filename(exam) {
                 const date = moment.unix(exam.startTime).format("MMMDo");
                 return `${date}-${exam.title}-${exam.teaching.clazz.name}.xls`
             },
             filterExercise() {
-                if (this.filter === null || this.filter === "") {
-                    common.replaceArray(this.filteredExercise, this.exercises);
-                }
-                const filtered = this.exercises.filter(e => e.title.indexOf(this.filter) !== -1 || e.description.indexOf(this.filter) !== -1);
+                const filtered = this.exercises.filter(e => {
+                    return this.typeFilter === "" || e.type === this.typeFilter;
+                });
                 common.replaceArray(this.filteredExercise, filtered);
             },
             onStartTimeChange(e) {
@@ -679,11 +718,11 @@
                     alert("请生成输入数据预览");
                     return
                 }
-                if ((this.exercise.expectedSQL && !this.exercise.expectedData)) {
+                if (this.exercise.expectedSQL && !this.exercise.expectedData) {
                     alert("请生成期望输出预览");
                     return
                 }
-                if (!this.exercise.title || !this.exercise.description) {
+                if (this.exercise.type === '' || !this.exercise.title || !this.exercise.description) {
                     alert("请输入基本信息");
                     return
                 }
@@ -703,13 +742,6 @@
             },
             loadTestPaper() {
                 common.loadEntity2("/teacher/testPaper", this.testPapers);
-            },
-            createTestPaper() {
-                if (this.testPaper.selectExercises.length === 0) {
-                    alert("请选择至少一道题目");
-                    return
-                }
-                $(this.$refs.createTestPaperModal).modal('show');
             },
             deleteTestPaper(testpaper) {
                 axios.delete(`/teacher/testPaper/${testpaper.id}`)

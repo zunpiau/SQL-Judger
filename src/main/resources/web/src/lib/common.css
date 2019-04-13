@@ -16,7 +16,7 @@ pre {
 .full-screen {
     max-width: unset !important;
     width: 100% !important;
-    height: 100%;
+    min-height: 100%;
     margin: 0;
     top: 0;
     left: 0;
