@@ -1,6 +1,7 @@
 package zunpiau.sqljudger.web.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -8,25 +9,31 @@ import org.springframework.transaction.annotation.Transactional;
 import zunpiau.sqljudger.database.entity.ResultWrapper;
 import zunpiau.sqljudger.web.Repository.AnswerRepository;
 import zunpiau.sqljudger.web.Repository.AnswerSheetRepository;
+import zunpiau.sqljudger.web.Repository.ExamRepository;
 import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
 import zunpiau.sqljudger.web.domain.Answer;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
+import zunpiau.sqljudger.web.domain.Exam;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-@Service
 @Slf4j
-public class CorrectService {
+@Service
+public class ExamServiceHelper {
 
+    private final ExamRepository examRepository;
     private final JdbcService jdbcService;
     private final AnswerSheetRepository answerSheetRepository;
     private final AnswerRepository answerRepository;
 
-    public CorrectService(JdbcService jdbcService, AnswerSheetRepository answerSheetRepository,
+    public ExamServiceHelper(ExamRepository examRepository, JdbcService jdbcService,
+            AnswerSheetRepository answerSheetRepository,
             AnswerRepository answerRepository) {
+        this.examRepository = examRepository;
         this.jdbcService = jdbcService;
         this.answerSheetRepository = answerSheetRepository;
         this.answerRepository = answerRepository;
@@ -69,6 +76,11 @@ public class CorrectService {
         }
         log.info("correct answerID: {}, time: {}", answer.getId(), System.currentTimeMillis() - start);
         return answer;
+    }
+
+    @Cacheable(cacheNames = "exam", key = "#id")
+    public Optional<Exam> findById(Long id) {
+        return examRepository.findById(id);
     }
 
 }

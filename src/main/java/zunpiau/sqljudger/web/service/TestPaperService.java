@@ -1,5 +1,6 @@
 package zunpiau.sqljudger.web.service;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zunpiau.sqljudger.web.Repository.ExerciseConfigRepository;
@@ -70,6 +71,7 @@ public class TestPaperService {
         return testPaper;
     }
 
+    @Cacheable(cacheNames = "testPaperForStudent", key = "#testPaper.getId()")
     public TestPaperVo getTestPaperForStudent(TestPaper testPaper) {
         return TestPaperVo.build(testPaper, exerciseConfigService.getExercisesForStudent(testPaper));
     }

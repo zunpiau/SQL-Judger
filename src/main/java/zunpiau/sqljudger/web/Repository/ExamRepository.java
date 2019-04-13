@@ -1,5 +1,6 @@
 package zunpiau.sqljudger.web.Repository;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -20,6 +21,10 @@ public interface ExamRepository extends CrudRepository<Exam, Long>, EnhanceRepos
     List<Exam> findAllByTeaching_Id(Long teaching);
 
     Optional<Exam> findByIdAndTeaching_Teacher_Number(Long id, Long teacher);
+
+    @Override
+    @Cacheable(cacheNames = "Exam", key = "#id")
+    Optional<Exam> findById(Long id);
 
     @Modifying
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)

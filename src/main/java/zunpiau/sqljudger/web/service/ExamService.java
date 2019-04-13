@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import zunpiau.sqljudger.web.Repository.AnswerRepository;
 import zunpiau.sqljudger.web.Repository.AnswerSheetRepository;
 import zunpiau.sqljudger.web.Repository.ExamRepository;
-import zunpiau.sqljudger.web.Repository.StudentRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.controller.exception.AuthException;
 import zunpiau.sqljudger.web.controller.exception.ExamException;
@@ -32,7 +31,6 @@ import zunpiau.sqljudger.web.domain.Teaching;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,26 +46,27 @@ import static zunpiau.sqljudger.web.controller.exception.ExamException.*;
 public class ExamService {
 
     private final TeachingRepository teachingRepository;
-    private final StudentRepository studentRepository;
+    private final StudentService studentService;
     private final AnswerSheetRepository answerSheetRepository;
+    private final ExamServiceHelper examServiceHelper;
     private final ExamRepository examRepository;
-    private final CorrectService correctService;
     private final TestPaperService testPaperService;
     private final ExerciseConfigService exerciseConfigService;
     private final AnswerRepository answerRepository;
 
     @Autowired
-    public ExamService(ExamRepository examRepository,
-            TeachingRepository teachingRepository, StudentRepository studentRepository,
+    public ExamService(ExamServiceHelper examServiceHelper,
+            TeachingRepository teachingRepository, StudentService studentService,
             AnswerSheetRepository answerSheetRepository,
-            CorrectService correctService, TestPaperService testPaperService,
+            ExamRepository examRepository,
+            TestPaperService testPaperService,
             ExerciseConfigService exerciseConfigService,
             AnswerRepository answerRepository) {
         this.examRepository = examRepository;
+        this.examServiceHelper = examServiceHelper;
         this.teachingRepository = teachingRepository;
-        this.studentRepository = studentRepository;
+        this.studentService = studentService;
         this.answerSheetRepository = answerSheetRepository;
-        this.correctService = correctService;
         this.testPaperService = testPaperService;
         this.exerciseConfigService = exerciseConfigService;
         this.answerRepository = answerRepository;
@@ -106,21 +105,17 @@ public class ExamService {
 
     @Transactional
     public List<Exam> findByStudent(Long number) {
-        Optional<Student> optionalStudent = studentRepository.findById(number);
-        if (optionalStudent.isPresent()) {
-            Clazz clazz = optionalStudent.get().getClazz();
-            final Long teaching = teachingRepository.findByClazz_Id(clazz.getId()).getId();
-            return examRepository.findAllByTeaching_Id(teaching);
-        }
-        return Collections.emptyList();
+        Student student = studentService.findById(number);
+        Clazz clazz = student.getClazz();
+        final Long teaching = teachingRepository.findByClazz_Id(clazz.getId()).getId();
+        return examRepository.findAllByTeaching_Id(teaching);
     }
 
     @Nullable
     @Transactional
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public Exam findByIdAndStudent(Long id, Long number) {
-        Student student = studentRepository.findById(number).get();
-        final Optional<Exam> optionalExam = examRepository.findById(id);
+        Student student = studentService.findById(number);
+        final Optional<Exam> optionalExam = examServiceHelper.findById(id);
         if (!optionalExam.isPresent()) {
             throw new NoEntityException(NoEntityException.STATUS_NO_EXAM);
         }
@@ -147,17 +142,10 @@ public class ExamService {
         return true;
     }
 
-    public List<Student> getStudents(Long id, Long teacher) {
-        final Exam exam = findByIdAndTeacher(id, teacher);
-        final Long clazz = exam.getTeaching().getClazz().getId();
-        return studentRepository.findAllByClazz_Id(clazz);
-    }
-
     public List<ExerciseConfigVo> getExercise(Long id, Long teacher) {
         final Exam exam = findByIdAndTeacher(id, teacher);
         return exerciseConfigService.getExercises(exam.getTestPaper());
     }
-
 
     public List<AnswerSheetDto> getAnswerSheet(Long id, Long teacher) {
         final Exam exam = findByIdAndTeacher(id, teacher);
@@ -166,7 +154,7 @@ public class ExamService {
         }
         final Long clazz = exam.getTeaching().getClazz().getId();
         final Long[] exerciseConfigs = exam.getTestPaper().getExerciseConfigs();
-        final List<Student> students = studentRepository.findAllByClazz_Id(clazz);
+        final List<Student> students = studentService.findAllByClazz_Id(clazz);
         List<AnswerSheetDto> dtos = new ArrayList<>(students.size());
         for (Student s : students) {
             AnswerSheetDto answerSheetDto = new AnswerSheetDto(s.getNumber(), s.getName(), exam.getId());
@@ -211,7 +199,7 @@ public class ExamService {
             examRepository.setStatus(exam.getId(), Exam.STATUS_CORRECTING);
             CountDownLatch answerSheetLatch = new CountDownLatch(answerSheets.size());
             for (AnswerSheet answerSheet : answerSheets) {
-                correctService.correctAsync(answerSheet, answerSheetLatch, exerciseMap);
+                examServiceHelper.correctAsync(answerSheet, answerSheetLatch, exerciseMap);
             }
             try {
 //            TimeUnit.SECONDS.sleep(10);
@@ -268,7 +256,7 @@ public class ExamService {
             throw new ExamException(STATUS_NON_CORRECT);
         }
         final Long clazz = exam.getTeaching().getClazz().getId();
-        final List<Student> students = studentRepository.findAllByClazz_Id(clazz);
+        final List<Student> students = studentService.findAllByClazz_Id(clazz);
         for (int i = 0; i < students.size(); i++) {
             Student s = students.get(i);
             final AnswerSheet answerSheet = answerSheetRepository.findByExamAndStudent(exam.getId(), s.getNumber());
@@ -282,17 +270,6 @@ public class ExamService {
             }
         }
         return workbook;
-    }
-
-    private void checkTeaching(Long teachingId, Long teacher) {
-        final Optional<Teaching> optionalTeaching = teachingRepository.findById(teachingId);
-        if (!optionalTeaching.isPresent()) {
-            throw new NoEntityException(NoEntityException.STATUS_NO_TEACHING);
-        }
-        final Teaching teaching = optionalTeaching.get();
-        if (!teaching.getTeacher().getNumber().equals(teacher)) {
-            throw new AuthException(AuthException.STATUS_TEACHER);
-        }
     }
 
 }
