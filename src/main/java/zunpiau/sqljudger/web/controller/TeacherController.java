@@ -109,8 +109,8 @@ public class TeacherController {
     }
 
     @GetMapping("testPaper")
-    public BaseResponse<?> getTestPaper() {
-        return BaseResponse.ok(testPaperService.findAll());
+    public BaseResponse<?> getTestPaper(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(testPaperService.findByTeacher(number));
     }
 
     @PostMapping("testPaper")

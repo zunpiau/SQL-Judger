@@ -43,8 +43,8 @@ public class TestPaperService {
         return testPaperRepository.deleteByIdAndTeacher_Number(id, teacher);
     }
 
-    public Iterable<TestPaperVo> findAll() {
-        final List<TestPaper> testPapers = testPaperRepository.findAll();
+    public Iterable<TestPaperVo> findByTeacher(Long number) {
+        final List<TestPaper> testPapers = testPaperRepository.findAllByTeacher_Number(number);
         return testPapers.stream()
                 .map(t -> TestPaperVo.build(t, exerciseConfigService.getExercises(t)))
                 .collect(Collectors.toList());

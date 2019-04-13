@@ -22,6 +22,10 @@ pre {
     left: 0;
 }
 
+input.score {
+    width: 4rem;
+}
+
 .panel {
     height: calc(100vh - 64px);
     overflow-y: auto;

@@ -19,4 +19,6 @@ public interface TestPaperRepository extends CrudRepository<TestPaper, Long> {
     @Override
     List<TestPaper> findAll();
 
+    List<TestPaper> findAllByTeacher_Number(Long number);
+
 }

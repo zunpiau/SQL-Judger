@@ -105,10 +105,6 @@
 <style scoped> @import "./../../lib/sidebar.css"; </style>
 <style scoped> @import "./../../lib/common.css"; </style>
 <style>
-  input.score {
-    width: 4rem;
-  }
-
   .fixed-right-bottom {
     padding-left: 60%;
     padding-right: 2%;

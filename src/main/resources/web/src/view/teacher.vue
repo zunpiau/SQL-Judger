@@ -283,40 +283,44 @@
             <div class="card-body">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="card-text">创建人: {{ testPaper.teacher.number }}/
-                    {{ testPaper.teacher.name }}</p>
+                  <p class="card-text">总分: {{ testPaper.score }}</p>
+                  <p class="card-text">题目: {{ testPaper.exerciseConfigs.length }}道</p>
                 </div>
                 <div class="d-flex align-items-center">
-                  <button class="btn btn-primary mr-2" v-on:click="createExam(index)">创建考试</button>
-                  <button class="btn btn-danger" v-if="deleteable(testPaper)" v-on:click="deleteTestPaper(testPaper)">
-                    删除试卷
-                  </button>
+                  <button class="btn btn-primary mr-2" v-on:click="showTestPaper(testPaper)">查看</button>
+                  <button class="btn btn-danger" v-on:click="deleteTestPaper(testPaper)">删除</button>
                 </div>
               </div>
-              <div class="text-center">
-                <a class="fa fa-chevron-down" data-toggle="collapse" role="button"
-                   v-bind:href="'#collapse-' + testPaper.id"></a>
-              </div>
-              <div :id="'collapse-' + testPaper.id" class="collapse">
-                <div class="table-responsive">
-                  <table class="table table-striped">
-                    <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">标题</th>
-                      <th scope="col">描述</th>
-                      <th scope="col">分数</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="exerciseConfig in testPaper.exerciseConfigs">
-                      <th scope="row">{{ exerciseConfig.exercise.id }}</th>
-                      <td class="exercise-title">{{ exerciseConfig.exercise.title }}</td>
-                      <td class="exercise-description">{{ exerciseConfig.exercise.description }}</td>
-                      <td>{{ exerciseConfig.score }}</td>
-                    </tr>
-                    </tbody>
-                  </table>
+            </div>
+          </div>
+          <div class="modal fade" id="testPaperModal" ref="testPaperModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">查看试卷</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="testPaperTitleInput">标题</label>
+                    <input class="form-control" id="testPaperTitleInput" placeholder="标题" required
+                           v-model="selectTestPaper.title">
+                  </div>
+                  <div class="form-group">
+                    <label for="testPaperScoreInput">总分</label>
+                    <input class="form-control" disabled id="testPaperScoreInput" placeholder="总分" required
+                           v-model="selectTestPaper.score">
+                  </div>
+                  <label>题目</label>
+                  <div v-for="exerciseConfig in selectTestPaper.exerciseConfigs">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <p class="h5">{{ exerciseConfig.exercise.id }}. {{ exerciseConfig.exercise.title }}</p>
+                      <input class="score form-control" type="number" v-model="exerciseConfig.score">
+                    </div>
+                    <p>{{ exerciseConfig.exercise.description }}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -520,6 +524,7 @@
                 },
                 checkedClazzs: [],
                 selectExercise: {},
+                selectTestPaper: {},
                 total: 0,
                 filter: "",
                 typeFilter: "",
@@ -742,6 +747,10 @@
             },
             loadTestPaper() {
                 common.loadEntity2("/teacher/testPaper", this.testPapers);
+            },
+            showTestPaper(testPaper) {
+                this.selectTestPaper = testPaper;
+                $('#testPaperModal').modal('show');
             },
             deleteTestPaper(testpaper) {
                 axios.delete(`/teacher/testPaper/${testpaper.id}`)
