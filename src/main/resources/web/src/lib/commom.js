@@ -14,7 +14,7 @@ export function getUrlParams(name) {
     return new URLSearchParams(window.location.search).get(name);
 }
 
-export function loadEntity(url, entities) {
+export function load(url, entities) {
     console.log(url);
     axios.get(url)
         .then(response => replaceArray(entities, response.data))
@@ -23,7 +23,7 @@ export function loadEntity(url, entities) {
         })
 }
 
-export function loadEntity2(url, entities) {
+export function load2(url, entities) {
     console.log(url);
     axios.get(url)
         .then(response => replaceArray(entities, response.data.data))
@@ -32,7 +32,7 @@ export function loadEntity2(url, entities) {
         })
 }
 
-export function deleteEntity(url, entities, entity) {
+export function del(url, entities, entity) {
     axios.delete(url)
         .then((response) => {
             if (response.data.status === 200) {
@@ -46,7 +46,7 @@ export function deleteEntity(url, entities, entity) {
         });
 }
 
-export function addEntity(url, entity, entyties, modal) {
+export function add(url, entity, entyties, modal) {
     axios.post(url, entity)
         .then(response => {
             if (response.data.status === 200) {

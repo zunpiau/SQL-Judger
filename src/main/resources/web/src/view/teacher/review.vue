@@ -142,8 +142,8 @@
                 return
             }
             this.exam = examId;
-            await common.loadEntity2(`/teacher/exam/${examId}/exercise`, this.exerciseConfigs);
-            await common.loadEntity2(`/teacher/exam/${examId}/student`, this.students);
+            await common.load2(`/teacher/exam/${examId}/exercise`, this.exerciseConfigs);
+            await common.load2(`/teacher/exam/${examId}/student`, this.students);
         },
         methods: {
             getScore(student) {

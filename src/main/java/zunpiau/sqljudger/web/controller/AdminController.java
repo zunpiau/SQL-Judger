@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -68,16 +69,20 @@ public class AdminController {
         return BaseResponse.ok();
     }
 
+    @PutMapping(value = "teacher", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public BaseResponse<?> modifyTeacher(@RequestBody Teacher teacher) {
+        return BaseResponse.ok(teacherRepository.merger(teacher));
+    }
+
     @PostMapping(value = "student", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> addStudent(@RequestBody Student student) {
         student.setPassword(passwordEncoder.encode(student.getPassword()));
-        try {
-            studentRepository.saveAndFresh(student);
-            System.out.println("student = " + student);
-        } catch (DataIntegrityViolationException e) {
-            return new BaseResponse<>(400, e.getCause().getCause().getMessage(), null);
-        }
-        return BaseResponse.ok(student);
+        return BaseResponse.ok(studentRepository.saveAndFresh(student));
+    }
+
+    @PutMapping(value = "student", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public BaseResponse<?> modifyStudent(@RequestBody Student student) {
+        return BaseResponse.ok(studentRepository.merger(student));
     }
 
     @GetMapping("student")
@@ -98,8 +103,12 @@ public class AdminController {
 
     @PostMapping(value = "clazz", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> addClazz(@RequestBody Clazz clazz) {
-        Clazz saved = clazzRepository.save(clazz);
-        return BaseResponse.ok(saved);
+        return BaseResponse.ok(clazzRepository.save(clazz));
+    }
+
+    @PutMapping(value = "clazz", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public BaseResponse<?> modifyClazz(@RequestBody Clazz clazz) {
+        return BaseResponse.ok(clazzRepository.merger(clazz));
     }
 
     @GetMapping("clazz")
@@ -120,13 +129,7 @@ public class AdminController {
 
     @PostMapping(value = "teaching", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> addTeaching(@RequestBody Teaching teaching) {
-        try {
-            teachingRepository.saveAndFresh(teaching);
-            System.out.println("teaching = " + teaching);
-        } catch (DataIntegrityViolationException e) {
-            return new BaseResponse<>(400, e.getCause().getCause().getMessage(), null);
-        }
-        return BaseResponse.ok(teaching);
+        return BaseResponse.ok(teachingRepository.save(teaching));
     }
 
     @GetMapping("teaching")

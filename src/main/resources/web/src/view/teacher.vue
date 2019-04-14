@@ -704,7 +704,7 @@
                 $('#exerciseModal').modal('show');
             },
             loadExercises() {
-                common.loadEntity2("/teacher/exercise", this.exercises);
+                common.load2("/teacher/exercise", this.exercises);
             },
             deleteExercise(exercise) {
                 axios.delete(`/teacher/exercise/${exercise.id}`)
@@ -743,10 +743,10 @@
                     }).catch(reason => console.log(reason))
             },
             loadTeachings() {
-                common.loadEntity2("/teacher/teaching", this.teachings);
+                common.load2("/teacher/teaching", this.teachings);
             },
             loadTestPaper() {
-                common.loadEntity2("/teacher/testPaper", this.testPapers);
+                common.load2("/teacher/testPaper", this.testPapers);
             },
             showTestPaper(testPaper) {
                 this.selectTestPaper = testPaper;
@@ -819,7 +819,7 @@
                 })
             },
             loadExams() {
-                common.loadEntity2("/teacher/exam", this.exams);
+                common.load2("/teacher/exam", this.exams);
             },
             cancelExam(exam) {
                 axios.put(`/teacher/exam/${exam.id}/cancel`)

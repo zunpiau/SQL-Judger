@@ -126,10 +126,10 @@
                 return "进行中";
             },
             loadTeachings() {
-                common.loadEntity("/teacher/teaching", this.teachings);
+                common.load("/teacher/teaching", this.teachings);
             },
             loadExams() {
-                common.loadEntity("/student/exam", this.exams);
+                common.load("/student/exam", this.exams);
             },
             viewScore(exam) {
                 axios.get(`/student/exam/${exam.id}/score`)

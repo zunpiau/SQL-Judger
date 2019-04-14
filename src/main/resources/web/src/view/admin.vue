@@ -9,20 +9,18 @@
             <a class="nav-link active" data-toggle="pill" href="#home" role="tab">
               Dashboard
             </a>
-            <a class="nav-link" data-toggle="pill" href="#teacher" role="tab"
-               v-on:click.once="loadEntity('/admin/teacher', teachers)">
+            <a class="nav-link" data-toggle="pill" href="#teacher" role="tab">
               教师管理
             </a>
-            <a class="nav-link" data-toggle="pill" href="#clazz" role="tab"
-               v-on:click.once="loadEntity('/admin/clazz', clazzs)">
+            <a class="nav-link" data-toggle="pill" href="#clazz" role="tab">
               班级管理
             </a>
             <a class="nav-link" data-toggle="pill" href="#teaching" role="tab"
-               v-on:click.once="loadEntity('/admin/teaching', teachings)">
+               v-on:click.once="common.load('/admin/teaching', teachings)">
               授课管理
             </a>
             <a class="nav-link" data-toggle="pill" href="#student" role="tab"
-               v-on:click.once="loadEntity('/admin/student', students)">
+               v-on:click.once="common.load('/admin/student', students)">
               学生管理
             </a>
           </nav>
@@ -30,11 +28,11 @@
       </nav>
 
       <main class="col-md-9 ml-sm-auto col-lg-10 px-4 tab-content" role="main">
-        <div class="tab-pane fade show active" id="home" role="tabpanel">
+        <div class="tab-pane fade show" id="home" role="tabpanel">
           <h2 class="h2 mb-3">Dashboard</h2>
           <h3 class="h3">Section title</h3>
         </div>
-        <div class="tab-pane fade show" id="teacher" role="tabpanel">
+        <div class="tab-pane fade" id="teacher" role="tabpanel">
           <h1 class="h2 mb-3">教师管理</h1>
           <div
               class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -59,13 +57,42 @@
                 <td>{{ teacher.number }}</td>
                 <td>{{ teacher.name }}</td>
                 <td>
-                  <button class="btn btn-danger btn-sm" v-on:click="deleteTeacher(teacher)">
+                  <button class="btn btn-secondary btn-sm mr-2" data-target="#modifyTeacherModal" data-toggle="modal"
+                          v-on:click="showModifyTeacher(teacher, index)">
+                    修改
+                  </button>
+                  <button class="btn btn-danger btn-sm"
+                          v-on:click="common.del(`/admin/teacher/${teacher.number}`, teachers, teacher)">
                     删除
                   </button>
                 </td>
               </tr>
               </tbody>
             </table>
+          </div>
+          <div class="modal fade" id="modifyTeacherModal" ref="modifyTeacherModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">修改教师</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <input class="form-control mb-2" disabled name="number" placeholder="教工号"
+                           v-model="selectTeacher.number">
+                    <input class="form-control mb-2" name="name" placeholder="姓名" v-model="selectTeacher.name">
+                    <input class="form-control mb-2" name="password" placeholder="密码" v-model="selectTeacher.password">
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
+                  <button class="btn btn-primary" type="button" v-on:click="modifyTeacher">修改</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal fade" id="teacherModal" role="dialog" tabindex="-1">
             <div class="modal-dialog" role="document">
@@ -84,7 +111,10 @@
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
-                  <button class="btn btn-primary" type="button" v-on:click="addTeacher">添加</button>
+                  <button class="btn btn-primary" type="button"
+                          v-on:click="common.add('/admin/teacher', teacher, teachers, jquery('#teacherModal'))">
+                    添加
+                  </button>
                 </div>
               </div>
             </div>
@@ -116,13 +146,40 @@
                 <td>{{ clazz.grade }}</td>
                 <td>{{ clazz.name }}</td>
                 <td>
-                  <button class="btn btn-danger btn-sm" v-on:click="deleteClazz(clazz)">
+                  <button class="btn btn-secondary btn-sm mr-2" data-target="#modifyClazzModal" data-toggle="modal"
+                          v-on:click="showModifyClazz(clazz, index)">
+                    修改
+                  </button>
+                  <button class="btn btn-danger btn-sm"
+                          v-on:click="common.del(`/admin/clazz/${clazz.id}`, clazzs, clazz)">
                     删除
                   </button>
                 </td>
               </tr>
               </tbody>
             </table>
+          </div>
+          <div class="modal fade" id="modifyClazzModal" ref="modifyClazzModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">修改班级</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <input class="form-control mb-2" placeholder="年级" type="number" v-model="selectClazz.grade">
+                    <input class="form-control mb-2" placeholder="班级名" v-model="selectClazz.name">
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
+                  <button class="btn btn-primary" type="button" v-on:click="modifyClazz">修改</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal fade" id="clazzModal" role="dialog" tabindex="-1">
             <div class="modal-dialog" role="document">
@@ -144,7 +201,10 @@
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
-                  <button class="btn btn-primary" type="button" v-on:click="addClazz">添加</button>
+                  <button class="btn btn-primary" type="button"
+                          v-on:click="common.add('/admin/clazz', clazz, clazzs, jquery('#clazzModal'))">
+                    添加
+                  </button>
                 </div>
               </div>
             </div>
@@ -176,7 +236,8 @@
                 <td>{{ teaching.clazz.grade }} {{ teaching.clazz.name }}</td>
                 <td>{{ teaching.teacher.number }} / {{ teaching.teacher.name }}</td>
                 <td>
-                  <button class="btn btn-danger btn-sm" v-on:click="deleteTeaching(teaching)">
+                  <button class="btn btn-danger btn-sm"
+                          v-on:click="common.del(`/admin/teaching/${teaching.id}`, teachings, teaching)">
                     删除
                   </button>
                 </td>
@@ -210,7 +271,10 @@
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
-                  <button class="btn btn-primary" type="button" v-on:click="addTeaching">添加</button>
+                  <button class="btn btn-primary" type="button"
+                          v-on:click="common.add('/admin/teaching', teaching, teachings, jquery('#teachingModal'))">
+                    添加
+                  </button>
                 </div>
               </div>
             </div>
@@ -244,6 +308,10 @@
                 <td>{{ student.name }}</td>
                 <td>{{ student.clazz.grade }} {{ student.clazz.name }}</td>
                 <td>
+                  <button class="btn btn-secondary btn-sm mr-2" data-target="#modifyStudentModal" data-toggle="modal"
+                          v-on:click="showModifyStudent(student, index)">
+                    修改
+                  </button>
                   <button class="btn btn-danger btn-sm" v-on:click="deleteStudent(student)">
                     删除
                   </button>
@@ -263,12 +331,9 @@
                 </div>
                 <div class="modal-body">
                   <form>
-                    <input class="form-control mb-2" id="studentInputName" placeholder="姓名"
-                           v-model="student.name">
-                    <input class="form-control mb-2" id="studentInputPassword"
-                           placeholder="密码" v-model="student.password">
-                    <select class="form-control mb-2" name="student.clazz.id"
-                            v-model="student.clazz.id">
+                    <input class="form-control mb-2" placeholder="姓名" v-model="student.name">
+                    <input class="form-control mb-2" placeholder="密码" v-model="student.password">
+                    <select class="form-control mb-2" v-model="student.clazz.id">
                       <option v-bind:value="clazz.id" v-for="clazz in clazzs">
                         {{ clazz.grade }} {{ clazz.name }}
                       </option>
@@ -277,7 +342,41 @@
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
-                  <button class="btn btn-primary" type="button" v-on:click="addStudent">添加</button>
+                  <button class="btn btn-primary" type="button"
+                          v-on:click="common.add('/admin/student', student, students, jquery('#studentModal'))">
+                    添加
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="modifyStudentModal" ref="modifyStudentModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">修改学生</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <input class="form-control mb-2" disabled placeholder="学号" v-model="selectStudent.number">
+                    <input class="form-control mb-2" placeholder="姓名" v-model="selectStudent.name">
+                    <input class="form-control mb-2" placeholder="密码" v-model="selectStudent.password">
+                    <select class="form-control mb-2" v-model="selectStudent.clazz.id">
+                      <option v-bind:value="clazz.id" v-for="clazz in clazzs">
+                        {{ clazz.grade }} {{ clazz.name }}
+                      </option>
+                    </select>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-dismiss="modal" type="button">取消</button>
+                  <button class="btn btn-primary" type="button"
+                          v-on:click="modifyStudent">
+                    修改
+                  </button>
                 </div>
               </div>
             </div>
@@ -290,36 +389,35 @@
 <script>
     import $ from 'jquery';
     import "bootstrap/dist/js/bootstrap.js"
-
+    import axios from "axios";
+    import Vue from 'vue';
     import 'bootstrap/dist/css/bootstrap.css'
     import 'bootstrap-vue/dist/bootstrap-vue.css'
     import * as common from '../lib/commom.js'
-
-    $('#teachingModal').on('show.bs.modal', loadIfNeeded);
-    $('#studentModal').on('show.bs.modal', loadIfNeeded);
-
-    function loadIfNeeded() {
-        if (mainVue.teachers.length === 0) {
-            mainVue.loadTeachers();
-        }
-        if (mainVue.clazzs.length === 0) {
-            mainVue.loadClazzs();
-        }
-    }
 
     export default {
         data() {
             return {
                 teacher: {},
                 teachers: [],
+                selectTeacher: {},
+                selectTeacherIndex: null,
                 student: {
                     clazz: {
                         id: 0,
                     }
                 },
                 students: [],
+                selectStudent: {
+                    clazz: {
+                        id: 0,
+                    }
+                },
+                selectStudentIndex: null,
                 clazz: {},
                 clazzs: [],
+                selectClazz: {},
+                selectClazzIndex: null,
                 teaching: {
                     teacher: {
                         number: 0,
@@ -329,37 +427,57 @@
                     }
                 },
                 teachings: [],
+                common: common,
+                jquery: $,
             }
         },
+        async created() {
+            await common.load('/admin/clazz', this.clazzs);
+            await common.load('/admin/teacher', this.teachers);
+        },
         methods: {
-            loadEntity(url, entities) {
-                console.log(entities);
-                common.loadEntity(url, entities)
+            showModifyTeacher(teacher, index) {
+                this.selectTeacher = teacher;
+                this.selectTeacherIndex = index;
             },
-            deleteTeacher(teacher) {
-                common.deleteEntity(`/admin/teacher/${teacher.number}`, this.teachers, teacher);
-            },
-            addTeacher() {
-                common.addEntity('/admin/teacher', this.teacher, this.teachers, $('#teacherModal'));
+            modifyTeacher() {
+                axios.put("/admin/teacher", this.selectTeacher)
+                    .then(res => {
+                        if (res.data.status === 200) {
+                            Vue.set(this.teachers, this.selectTeacherIndex, res.data.data);
+                            $(this.$refs.modifyTeacherModal).modal("hide")
+                        }
+                    })
             },
             deleteStudent(student) {
-                common.deleteEntity(`/admin/student/${student.number}`, this.students, student);
+                common.del(`/admin/student/${student.number}`, this.students, student);
             },
-            addStudent() {
-                common.addEntity('/admin/student', this.student, this.students, $('#studentModal'));
+            showModifyClazz(clazz, index) {
+                this.selectClazz = clazz;
+                this.selectClazzIndex = index;
             },
-            deleteClazz(clazz) {
-                common.deleteEntity(`/admin/clazz/${clazz.id}`, this.clazzs, clazz);
+            modifyClazz() {
+                axios.put("/admin/clazz", this.selectClazz)
+                    .then(res => {
+                        if (res.data.status === 200) {
+                            Vue.set(this.clazzs, this.selectClazzIndex, res.data.data);
+                            $(this.$refs.modifyClazzModal).modal("hide")
+                        }
+                    })
             },
-            addClazz() {
-                common.addEntity('/admin/clazz', this.clazz, this.clazzs, $('#clazzModal'));
+            showModifyStudent(student, index) {
+                this.selectStudent = student;
+                this.selectStudentIndex = index;
             },
-            deleteTeaching(teaching) {
-                common.deleteEntity(`/admin/teaching/${teaching.id}`, this.teachings, teaching);
+            modifyStudent() {
+                axios.put("/admin/student", this.selectStudent)
+                    .then(res => {
+                        if (res.data.status === 200) {
+                            Vue.set(this.students, this.selectStudentIndex, res.data.data);
+                            $(this.$refs.modifyStudentModal).modal("hide")
+                        }
+                    })
             },
-            addTeaching() {
-                common.addEntity('/admin/teaching', this.teaching, this.teachings, $('#teachingModal'));
-            }
         }
     }
 </script>
