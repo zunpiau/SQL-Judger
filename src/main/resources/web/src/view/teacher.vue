@@ -229,13 +229,17 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                  <div class="form-group">
-                    <label for="fileInput">请选择 Excel 文件进行导入</label>
-                    <input
-                        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                        class="form-control-file" id="fileInput" ref="fileInput"
-                        type="file">
-                    <button @click="uploadFile" class="btn btn-primary mt-3">上传</button>
+                  <div class="input-group">
+                    <div class="custom-file">
+                      <input
+                          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                          class="custom-file-input" type="file"
+                          v-on:change="files = $event.target.files">
+                      <label class="custom-file-label">{{ files.length === 0 ? '请选择 Excel 文件' : files[0].name }}</label>
+                    </div>
+                    <div class="input-group-append">
+                      <button @click="uploadFile" class="btn btn-outline-secondary" type="button">上传</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -468,6 +472,7 @@
         },
         data() {
             return {
+                files: [],
                 exerciseTypes: [
                     "简单查询", "多表查询", "条件", "创建表", "修改表", "INSERT", "DELETE", "UPDATE"
                 ],
@@ -840,12 +845,11 @@
                     .catch(reason => console.log(reason));
             },
             uploadFile() {
-                const files = this.$refs.fileInput.files;
-                if (files.length === 0) {
+                if (this.files.length === 0) {
                     return
                 }
                 const formData = new FormData();
-                formData.append('file', files[0]);
+                formData.append('file', this.files[0]);
                 axios.post("/teacher/exercise/import", formData)
                     .then(res => {
                         if (res.data.status === 200) {
