@@ -23,6 +23,7 @@ import zunpiau.sqljudger.web.domain.Clazz;
 import zunpiau.sqljudger.web.domain.Student;
 import zunpiau.sqljudger.web.domain.Teacher;
 import zunpiau.sqljudger.web.domain.Teaching;
+import zunpiau.sqljudger.web.domain.User;
 
 @RestController
 @RequestMapping("/admin/")
@@ -48,9 +49,8 @@ public class AdminController {
 
     @PostMapping(value = "teacher", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> addTeacher(@RequestBody Teacher teacher) {
-        teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
-        Teacher save = teacherRepository.save(teacher);
-        return BaseResponse.ok(save);
+        handlePassword(teacher);
+        return BaseResponse.ok(teacherRepository.save(teacher));
     }
 
     @GetMapping("teacher")
@@ -71,18 +71,24 @@ public class AdminController {
 
     @PutMapping(value = "teacher", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> modifyTeacher(@RequestBody Teacher teacher) {
+        handlePassword(teacher);
         return BaseResponse.ok(teacherRepository.merger(teacher));
     }
 
     @PostMapping(value = "student", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> addStudent(@RequestBody Student student) {
-        student.setPassword(passwordEncoder.encode(student.getPassword()));
+        handlePassword(student);
         return BaseResponse.ok(studentRepository.saveAndFresh(student));
     }
 
     @PutMapping(value = "student", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> modifyStudent(@RequestBody Student student) {
+        handlePassword(student);
         return BaseResponse.ok(studentRepository.merger(student));
+    }
+
+    private void handlePassword(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
     @GetMapping("student")
