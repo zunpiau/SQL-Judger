@@ -286,6 +286,12 @@
               class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h3 class="h3">学生列表</h3>
             <div class="mb-2 mb-md-0">
+              <b-dropdown class="mr-2" text="班级">
+                <b-dropdown-item @click="onClazzSelect(-1)">全部</b-dropdown-item>
+                <b-dropdown-item @click="onClazzSelect(clazz.id)" v-for="clazz in clazzs">
+                  {{ clazz.grade }} {{ clazz.name }}
+                </b-dropdown-item>
+              </b-dropdown>
               <button class="btn btn-outline-primary" data-target="#studentModal" data-toggle="modal">添加
               </button>
             </div>
@@ -302,7 +308,7 @@
               </tr>
               </thead>
               <tbody id="student_tbody">
-              <tr :key="index" v-for="(student, index) in students">
+              <tr :key="student.number" v-for="(student, index) in studentFiltered">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ student.number }}</td>
                 <td>{{ student.name }}</td>
@@ -387,13 +393,17 @@
   </div>
 </template>
 <script>
+    import axios from 'axios';
+    import Vue from 'vue'
     import $ from 'jquery';
+    import BootstrapVue from 'bootstrap-vue'
     import "bootstrap/dist/js/bootstrap.js"
-    import axios from "axios";
-    import Vue from 'vue';
+    import * as common from '../lib/commom.js'
+
     import 'bootstrap/dist/css/bootstrap.css'
     import 'bootstrap-vue/dist/bootstrap-vue.css'
-    import * as common from '../lib/commom.js'
+
+    Vue.use(BootstrapVue);
 
     export default {
         data() {
@@ -416,6 +426,7 @@
                 selectStudentIndex: null,
                 clazz: {},
                 clazzs: [],
+                studentFiltered: [],
                 selectClazz: {},
                 selectClazzIndex: null,
                 teaching: {
@@ -429,13 +440,31 @@
                 teachings: [],
                 common: common,
                 jquery: $,
+                clazzFilter: -1,
             }
         },
         async created() {
             await common.load('/admin/clazz', this.clazzs);
             await common.load('/admin/teacher', this.teachers);
         },
+        watch: {
+            students() {
+                this.filterClazz();
+            }
+        },
         methods: {
+            onClazzSelect(clazz) {
+                this.clazzFilter = clazz;
+                this.filterClazz();
+            },
+            filterClazz() {
+                if (this.clazzFilter === -1) {
+                    common.replaceArray(this.studentFiltered, this.students)
+                } else {
+                    const filtered = this.students.filter(e => e.clazz.id === this.clazzFilter);
+                    common.replaceArray(this.studentFiltered, filtered);
+                }
+            },
             showModifyTeacher(teacher, index) {
                 this.selectTeacher = teacher;
                 this.selectTeacherIndex = index;
