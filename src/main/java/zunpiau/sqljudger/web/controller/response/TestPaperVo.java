@@ -15,10 +15,11 @@ public class TestPaperVo {
     private String title;
     private Teacher teacher;
     private Integer score;
+    private boolean used;
     private List<ExerciseConfigVo> exerciseConfigs;
 
-    public static TestPaperVo build(TestPaper t, List<ExerciseConfigVo> exerciseConfigs) {
-        return new TestPaperVo(t.getId(), t.getTitle(), t.getTeacher(), t.getScore(), exerciseConfigs);
+    public static TestPaperVo build(TestPaper t, List<ExerciseConfigVo> exerciseConfigs, boolean used) {
+        return new TestPaperVo(t.getId(), t.getTitle(), t.getTeacher(), t.getScore(), used, exerciseConfigs);
     }
 
 }

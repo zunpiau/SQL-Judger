@@ -8,7 +8,7 @@ import zunpiau.sqljudger.web.domain.TestPaper;
 import java.util.List;
 import java.util.Optional;
 
-public interface TestPaperRepository extends CrudRepository<TestPaper, Long> {
+public interface TestPaperRepository extends CrudRepository<TestPaper, Long>, EnhanceRepository<TestPaper, Long> {
 
     @Modifying
     @Transactional

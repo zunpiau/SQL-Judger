@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zunpiau.sqljudger.web.domain.Exercise;
+import zunpiau.sqljudger.web.domain.ExerciseType;
 import zunpiau.sqljudger.web.domain.Teacher;
 
 import java.util.List;
@@ -27,4 +28,7 @@ public interface ExerciseRepository extends CrudRepository<Exercise, Long> {
     @Query("select new Exercise(e.id, e.inputSQL, e.score, e.expectedData) " +
            " from Exercise e where e.id = ?1")
     Optional<Exercise> findByIdForAnswer(Long id);
+
+    List<Exercise> findAllByType(ExerciseType type);
+
 }

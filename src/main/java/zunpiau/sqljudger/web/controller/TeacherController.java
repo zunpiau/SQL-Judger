@@ -21,6 +21,7 @@ import zunpiau.sqljudger.web.BaseResponse;
 import zunpiau.sqljudger.web.Repository.ExerciseRepository;
 import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
+import zunpiau.sqljudger.web.controller.request.ComposeTestPaperRequest;
 import zunpiau.sqljudger.web.controller.request.SQLExcuteRequest;
 import zunpiau.sqljudger.web.controller.request.TestPaperDto;
 import zunpiau.sqljudger.web.controller.request.UpdateScoreDto;
@@ -113,10 +114,22 @@ public class TeacherController {
         return BaseResponse.ok(testPaperService.findByTeacher(number));
     }
 
+    @PostMapping("testPaper/compose")
+    public BaseResponse<?> composeTestPaper(@RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number,
+            @RequestBody ComposeTestPaperRequest request) {
+        return BaseResponse.ok(testPaperService.create(request.getAmounts(), request.getTitle(), number));
+    }
+
     @PostMapping("testPaper")
     public BaseResponse<?> addTestPaper(@RequestBody TestPaperDto testPaperDto,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         return BaseResponse.ok(testPaperService.save(testPaperDto, number));
+    }
+
+    @PutMapping("testPaper")
+    public BaseResponse<?> modifyTestPaper(@RequestBody TestPaperDto testPaperDto,
+            @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
+        return BaseResponse.ok(testPaperService.update(testPaperDto, number));
     }
 
     @DeleteMapping("testPaper/{id}")

@@ -22,6 +22,8 @@ public interface ExamRepository extends CrudRepository<Exam, Long>, EnhanceRepos
 
     Optional<Exam> findByIdAndTeaching_Teacher_Number(Long id, Long teacher);
 
+    boolean existsByTestPaper_Id(Long testpaper);
+
     @Override
     @Cacheable(cacheNames = "Exam", key = "#id")
     Optional<Exam> findById(Long id);

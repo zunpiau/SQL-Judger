@@ -51,7 +51,7 @@
             </div>
           </div>
         </div>
-        <div class="tab-pane fade show" id="exercise" role="tabpanel">
+        <div class="tab-pane fade" id="exercise" role="tabpanel">
           <h2 class="h2 mb-3">题目列表</h2>
           <div class="input-group form-inline d-flex justify-content-end mb-3">
             <b-dropdown class="mr-2" text="题目类型">
@@ -61,49 +61,10 @@
             <button class="btn btn-secondary mr-2" data-target="#importModal" data-toggle="modal">导入题目</button>
             <button class="btn btn-primary" data-target="#addExerciseModal" data-toggle="modal">创建题目</button>
           </div>
-          <div class="modal fade full-screen" id="createTestPaperModal" ref="createTestPaperModal" role="dialog"
+          <div class="modal fade full-screen" id="addExerciseModal" ref="addExerciseModal" role="dialog"
                tabindex="-1">
             <div class="modal-dialog modal-lg full-screen" role="document">
               <div class="modal-content full-screen">
-                <div class="modal-header">
-                  <h5 class="modal-title">创建试卷</h5>
-                  <button class="close" data-dismiss="modal" type="button">
-                    <span>&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <div class="input-group mb-3">
-                    <input class="form-control mr-2" placeholder="试卷名称" v-model="testPaper.title">
-                    <button class="btn btn-primary" v-on:click="addTestPaper">创建</button>
-                  </div>
-                  <div class="table-responsive">
-                    <table class="table table-striped">
-                      <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">标题</th>
-                        <th scope="col">描述</th>
-                        <th scope="col">分数/总分 {{ total }}</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr v-for="exercise in testPaper.selectExercises">
-                        <th scope="row">{{ exercise.id }}</th>
-                        <td>{{ exercise.title }}</td>
-                        <td>{{ exercise.description }}</td>
-                        <td><input type="number" v-model="exercise.score"></td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal fade" id="addExerciseModal" ref="addExerciseModal" role="dialog"
-               tabindex="-1">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title">创建题目</h5>
                   <button class="close" data-dismiss="modal" type="button">
@@ -124,8 +85,8 @@
                              v-model="exercise.score">
                     </div>
                     <div class="form-group">
-                      <label for="exerciseTypeDropdown">题目类型</label>
-                      <div class="dropdown" id="exerciseTypeDropdown">
+                      <label>题目类型</label>
+                      <div class="dropdown">
                         <button class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" type="button">
                           {{ exercise.type === '' ? '请选择' : exercise.type}}
                         </button>
@@ -276,8 +237,13 @@
             </table>
           </div>
         </div>
-        <div class="tab-pane fade show" id="testPaper" role="tabpanel">
-          <h2 class="h2 mb-3">试卷列表</h2>
+        <div class="tab-pane fade" id="testPaper" role="tabpanel">
+          <div
+              class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h3 class="h3">试卷列表</h3>
+            <button class="btn btn-outline-primary" data-target="#createTestPaperModal" data-toggle="modal">创建试卷
+            </button>
+          </div>
           <div class="card mb-5 shadow-sm" v-for="testPaper, index in testPapers">
             <div class="card-header">
               <span class="h4">
@@ -291,8 +257,10 @@
                   <p class="card-text">题目: {{ testPaper.exerciseConfigs.length }}道</p>
                 </div>
                 <div class="d-flex align-items-center">
-                  <button class="btn btn-primary mr-2" v-on:click="showTestPaper(testPaper)">查看</button>
-                  <button class="btn btn-danger" v-on:click="deleteTestPaper(testPaper)">删除</button>
+                  <button class="btn btn-primary" v-on:click="showTestPaper(testPaper)">查看</button>
+                  <button class="btn btn-danger ml-2" v-if="!testPaper.used" v-on:click="deleteTestPaper(testPaper)">
+                    删除
+                  </button>
                 </div>
               </div>
             </div>
@@ -321,65 +289,73 @@
                   <div v-for="exerciseConfig in selectTestPaper.exerciseConfigs">
                     <div class="d-flex justify-content-between align-items-center">
                       <p class="h5">{{ exerciseConfig.exercise.id }}. {{ exerciseConfig.exercise.title }}</p>
-                      <input class="score form-control" type="number" v-model="exerciseConfig.score">
+                      <div class="d-flex">
+                        <input class="score form-control mr-2" type="number" v-model="exerciseConfig.score">
+                        <button @click=" common.deleteElement(selectTestPaper.exerciseConfigs, exerciseConfig) "
+                                class="btn btn-danger">
+                          移除
+                        </button>
+                      </div>
                     </div>
                     <p>{{ exerciseConfig.exercise.description }}</p>
                   </div>
                 </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-dismiss="modal" type="button">关闭</button>
+                  <button class="btn btn-primary" type="button" v-if="!selectTestPaper.used"
+                          v-on:click="modifyTestPaper(selectTestPaper)">修改
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-          <div class="modal fade" id="createExamModal" ref="createExamModal" role="dialog"
+          <div class="modal fade" id="createTestPaperModal" ref="createTestPaperModal" role="dialog"
                tabindex="-1">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title">创建考试</h5>
+                  <h5 class="modal-title">创建试卷</h5>
                   <button class="close" data-dismiss="modal" type="button">
                     <span>&times;</span>
                   </button>
                 </div>
                 <div class="modal-body">
-                  <section>
-                    <div class="form-group">
-                      <label for="examTitleInput">标题</label>
-                      <input class="form-control" id="examTitleInput" placeholder="标题" required v-model="exam.title">
+                  <div class="input-group mb-3">
+                    <input class="form-control mr-2" placeholder="试卷名称" v-model="composeTestPaperRequest.title">
+                  </div>
+                  <label>选择题目类型/数量</label>
+                  <ul>
+                    <div v-for="(index, type) in composeTestPaperRequest.amounts">
+                      <li>{{ type}}: {{ composeTestPaperRequest.amounts[type] }}道</li>
                     </div>
-                    <div class="form-group">
-                      <label for="testPaperInput">试卷</label>
-                      <input class="form-control" disabled id="testPaperInput"
-                             v-bind:value="exam.testPaper.id + '.' + exam.testPaper.title">
-                    </div>
-                    <div class="form-group">
-                      <label>选择班级</label>
-                      <div class="form-check" v-for="teaching in teachings">
-                        <input class="form-check-input" type="checkbox" v-bind:value="teaching.clazz.id"
-                               v-model="checkedClazzs">
-                        <label class="form-check-label">
-                          {{ teaching.clazz.grade }} {{ teaching.clazz.name }}
-                        </label>
+                  </ul>
+                  <div class="input-group mb-3">
+                    <div class="dropdown mr-2">
+                      <button class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" type="button">
+                        {{ compose.exerciseType }}
+                      </button>
+                      <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
+                        <a @click="compose.exerciseType = type" class="dropdown-item" v-for="type in exerciseTypes">
+                          {{ type }}</a>
                       </div>
                     </div>
-                    <div class="form-group form-inline">
-                      <label class="pr-2">考试开始时间</label>
-                      <date-picker :config="configs.start" @dp-change="onStartTimeChange"
-                                   v-model="startTime"></date-picker>
-                    </div>
-                    <div class="form-group form-inline">
-                      <label class="pr-2">考试结束时间</label>
-                      <date-picker :config="configs.end" @dp-change="onEndTimeChange" v-model="endTime"></date-picker>
-                    </div>
-                  </section>
-                  <section class="d-flex justify-content-center mt-5 mb-5">
-                    <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExam">完成</button>
-                  </section>
+                    <input class="mr-2" type="number" v-model="compose.amount">
+                    <button @click="addExerciseTypeAmount()" class="btn btn-secondary mr-2">添加</button>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button @click="composeTestPaper" class="btn btn-primary">组卷</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="tab-pane fade show" id="exam" role="tabpanel">
-          <h2 class="h2 mb-3">考试安排</h2>
+        <div class="tab-pane fade" id="exam" role="tabpanel">
+          <div
+              class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h3 class="h3">考试列表</h3>
+            <button class="btn btn-outline-primary" data-target="#createExamModal" data-toggle="modal">创建考试</button>
+          </div>
           <div v-if=" this.exams.length === 0">
             <p>当前没有考试</p>
           </div>
@@ -416,6 +392,61 @@
               </div>
             </div>
           </div>
+          <div class="modal fade" id="createExamModal" ref="createExamModal" role="dialog"
+               tabindex="-1">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">创建考试</h5>
+                  <button class="close" data-dismiss="modal" type="button">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <section>
+                    <div class="form-group">
+                      <label for="examTitleInput">标题</label>
+                      <input class="form-control" id="examTitleInput" placeholder="标题" required v-model="exam.title">
+                    </div>
+                    <div class="form-group">
+                      <label>试卷</label>
+                      <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" type="button">
+                          {{ exam.testPaper.title ? exam.testPaper.title : '请选择' }}
+                        </button>
+                        <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
+                          <a @click="exam.testPaper = type" class="dropdown-item" v-for="type in testPapers">
+                            {{ type.title }}</a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>选择班级</label>
+                      <div class="form-check" v-for="teaching in teachings">
+                        <input class="form-check-input" type="checkbox" v-bind:value="teaching.clazz.id"
+                               v-model="checkedClazzs">
+                        <label class="form-check-label">
+                          {{ teaching.clazz.grade }} {{ teaching.clazz.name }}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="form-group form-inline">
+                      <label class="pr-2">考试开始时间</label>
+                      <date-picker :config="configs.start" @dp-change="onStartTimeChange" v-model="startTime">
+                      </date-picker>
+                    </div>
+                    <div class="form-group form-inline">
+                      <label class="pr-2">考试结束时间</label>
+                      <date-picker :config="configs.end" @dp-change="onEndTimeChange" v-model="endTime"></date-picker>
+                    </div>
+                  </section>
+                  <section class="d-flex justify-content-center mt-5 mb-5">
+                    <button class="btn btn-outline-primary btn-lg w-25" v-on:click="addExam">完成</button>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -443,9 +474,17 @@
     width: 8.5rem;
   }
 
-  #exerciseTypeDropdown .btn-outline-primary {
+  .btn-outline-primary.dropdown-toggle {
+    width: 10rem;
+    text-align: left;
     color: unset !important;
     border-color: #ced4da;
+  }
+
+  .show > .btn-outline-primary.dropdown-toggle,
+  .btn-outline-primary.dropdown-toggle:hover,
+  .btn-outline-primary.dropdown-toggle:active {
+    background-color: unset !important;
   }
 </style>
 <script>
@@ -472,10 +511,20 @@
         },
         data() {
             return {
+                composeTestPaperRequest: {
+                    title: null,
+                    score: 0,
+                    amounts: {}
+                },
+
                 files: [],
                 exerciseTypes: [
-                    "简单查询", "多表查询", "条件", "创建表", "修改表", "INSERT", "DELETE", "UPDATE"
+                    "简单查询", "多表查询", "条件查询", "创建表", "修改表", "INSERT", "DELETE", "UPDATE"
                 ],
+                compose: {
+                    exerciseType: "简单查询",
+                    amount: 0,
+                },
                 configs: {
                     start: {
                         useCurrent: false,
@@ -534,6 +583,7 @@
                 filter: "",
                 typeFilter: "",
                 filteredExercise: [],
+                common: common,
             }
         },
         async created() {
@@ -563,6 +613,14 @@
                     this.total = t;
                 },
                 deep: true,
+            },
+            selectTestPaper: {
+                handler() {
+                    let t = 0;
+                    this.selectTestPaper.exerciseConfigs.forEach(e => t += Number.parseInt(e.score));
+                    this.selectTestPaper.score = t;
+                },
+                deep: true,
             }
         },
         computed: {
@@ -577,6 +635,9 @@
             }
         },
         methods: {
+            addExerciseTypeAmount() {
+                Vue.set(this.composeTestPaperRequest.amounts, this.compose.exerciseType, this.compose.amount);
+            },
             onTypeSelect(type) {
                 this.typeFilter = type;
                 this.filterExercise();
@@ -754,7 +815,7 @@
                 common.load2("/teacher/testPaper", this.testPapers);
             },
             showTestPaper(testPaper) {
-                this.selectTestPaper = testPaper;
+                this.selectTestPaper = JSON.parse(JSON.stringify(testPaper));
                 $('#testPaperModal').modal('show');
             },
             deleteTestPaper(testpaper) {
@@ -787,15 +848,14 @@
                         console.log(res);
                     })
             },
-            createExam(index) {
-                this.exam.testPaper.id = this.testPapers[index].id;
-                this.exam.testPaper.title = this.testPapers[index].title;
-                $(this.$refs.createExamModal).modal('show');
-            },
             addExam() {
                 console.log(this.exam);
                 if (!this.exam.title) {
                     alert("请输入标题");
+                    return
+                }
+                if (!this.exam.testPaper.id) {
+                    alert("请选择试卷");
                     return
                 }
                 if (this.checkedClazzs.length === 0) {
@@ -812,6 +872,7 @@
                 }
                 this.checkedClazzs.forEach(clazz => {
                     this.exam.teaching.clazz.id = clazz;
+                    this.exam.testPaper = {id: this.exam.testPaper.id};
                     axios.post("/teacher/exam", this.exam)
                         .then(res => {
                             console.log(res.data);
@@ -860,7 +921,42 @@
                         }
                     })
                     .catch(reason => console.log(reason));
-            }
+            },
+            composeTestPaper() {
+                axios.post("/teacher/testPaper/compose", this.composeTestPaperRequest)
+                    .then(res => {
+                        this.testPapers.push(res.data.data);
+                        $(this.$refs.createTestPaperModal).modal("hide");
+                    })
+            },
+            modifyTestPaper(testPaper) {
+                const testPaperDTO = {
+                    title: testPaper.title,
+                    id: testPaper.id,
+                    score: testPaper.score,
+                    exerciseConfigs: [],
+                }
+                testPaper.exerciseConfigs.forEach(e => {
+                    testPaperDTO.exerciseConfigs.push({
+                        exercise: e.exercise.id,
+                        score: e.score,
+                    })
+                });
+                axios.put("/teacher/testPaper", testPaperDTO)
+                    .then(res => {
+                        $(this.$refs.testPaperModal).modal('hide');
+                        let del;
+                        this.testPapers.forEach(t => {
+                            if (t.id === testPaperDTO.id)
+                                del = t;
+                        })
+                        common.deleteElement(this.testPapers, del);
+                        this.testPapers.push(res.data.data);
+                    })
+                    .catch(res => {
+                        console.log(res);
+                    })
+            },
         }
     };
     export default app;
