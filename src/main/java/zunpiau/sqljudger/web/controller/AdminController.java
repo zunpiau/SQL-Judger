@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zunpiau.sqljudger.web.BaseResponse;
 import zunpiau.sqljudger.web.Repository.ClazzRepository;
-import zunpiau.sqljudger.web.Repository.StudentRepository;
 import zunpiau.sqljudger.web.Repository.TeacherRepository;
 import zunpiau.sqljudger.web.Repository.TeachingRepository;
 import zunpiau.sqljudger.web.domain.Clazz;
@@ -24,24 +23,25 @@ import zunpiau.sqljudger.web.domain.Student;
 import zunpiau.sqljudger.web.domain.Teacher;
 import zunpiau.sqljudger.web.domain.Teaching;
 import zunpiau.sqljudger.web.domain.User;
+import zunpiau.sqljudger.web.service.StudentService;
 
 @RestController
 @RequestMapping("/admin/")
 public class AdminController {
 
     private final TeacherRepository teacherRepository;
-    private final StudentRepository studentRepository;
+    private final StudentService studentService;
     private final ClazzRepository clazzRepository;
     private final TeachingRepository teachingRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AdminController(TeacherRepository teacherRepository,
-            StudentRepository studentRepository,
+            StudentService studentService,
             ClazzRepository clazzRepository, TeachingRepository teachingRepository,
             PasswordEncoder passwordEncoder) {
         this.teacherRepository = teacherRepository;
-        this.studentRepository = studentRepository;
+        this.studentService = studentService;
         this.clazzRepository = clazzRepository;
         this.teachingRepository = teachingRepository;
         this.passwordEncoder = passwordEncoder;
@@ -78,13 +78,13 @@ public class AdminController {
     @PostMapping(value = "student", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> addStudent(@RequestBody Student student) {
         handlePassword(student);
-        return BaseResponse.ok(studentRepository.saveAndFresh(student));
+        return BaseResponse.ok(studentService.add(student));
     }
 
     @PutMapping(value = "student", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<?> modifyStudent(@RequestBody Student student) {
         handlePassword(student);
-        return BaseResponse.ok(studentRepository.merger(student));
+        return BaseResponse.ok(studentService.update(student));
     }
 
     private void handlePassword(User user) {
@@ -93,17 +93,17 @@ public class AdminController {
 
     @GetMapping("student")
     public ResponseEntity<?> getAllStudent() {
-        return ResponseEntity.ok(studentRepository.findAll());
+        return ResponseEntity.ok(studentService.findAll());
     }
 
     @GetMapping("student/{number}")
     public ResponseEntity<?> getStudent(@PathVariable Long number) {
-        return ResponseEntity.ok(studentRepository.findById(number));
+        return ResponseEntity.ok(studentService.findById(number));
     }
 
     @DeleteMapping("student/{number}")
     public BaseResponse<?> deleteStudent(@PathVariable Long number) {
-        studentRepository.deleteById(number);
+        studentService.deleteById(number);
         return BaseResponse.ok();
     }
 

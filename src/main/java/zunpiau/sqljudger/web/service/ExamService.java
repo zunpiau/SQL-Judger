@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,7 @@ public class ExamService {
     }
 
     @Transactional
+    @CachePut(cacheNames = "exam", key = "#exam.getId()")
     public Exam save(Exam exam, Long teacher) {
         final Optional<Teaching> optionalTeaching = teachingRepository
                 .findByClazz_IdAndTeacher_Number(exam.getTeaching().getClazz().getId(), teacher);
@@ -115,11 +117,7 @@ public class ExamService {
     @Transactional
     public Exam findByIdAndStudent(Long id, Long number) {
         Student student = studentService.findById(number);
-        final Optional<Exam> optionalExam = examServiceHelper.findById(id);
-        if (!optionalExam.isPresent()) {
-            throw new NoEntityException(NoEntityException.STATUS_NO_EXAM);
-        }
-        final Exam exam = optionalExam.get();
+        final Exam exam = examServiceHelper.findById(id);
         final Teaching teaching = exam.getTeaching();
         if (!teaching.getClazz().getId().equals(student.getClazz().getId())) {
             throw new AuthException(AuthException.STATUS_STUDENT);
@@ -127,10 +125,12 @@ public class ExamService {
         return exam;
     }
 
+    @CachePut(cacheNames = "exam", key = "#examId")
     public boolean cancelExam(Long examId, Long teacherNumber) {
         return setStatus(examId, teacherNumber, Exam.STATUS_CANCEL);
     }
 
+    @CachePut(cacheNames = "exam", key = "#examId")
     public boolean setScoreViewable(Long examId, Long teacherNumber) {
         return setStatus(examId, teacherNumber, Exam.STATUS_REVIEWED);
     }

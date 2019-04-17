@@ -10,6 +10,7 @@ import zunpiau.sqljudger.database.entity.ResultWrapper;
 import zunpiau.sqljudger.web.Repository.AnswerRepository;
 import zunpiau.sqljudger.web.Repository.AnswerSheetRepository;
 import zunpiau.sqljudger.web.Repository.ExamRepository;
+import zunpiau.sqljudger.web.controller.exception.NoEntityException;
 import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
 import zunpiau.sqljudger.web.domain.Answer;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
@@ -17,7 +18,6 @@ import zunpiau.sqljudger.web.domain.Exam;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
@@ -79,8 +79,8 @@ public class ExamServiceHelper {
     }
 
     @Cacheable(cacheNames = "exam", key = "#id")
-    public Optional<Exam> findById(Long id) {
-        return examRepository.findById(id);
+    public Exam findById(Long id) {
+        return examRepository.findById(id).orElseThrow(() -> new NoEntityException(NoEntityException.STATUS_NO_EXAM));
     }
 
 }
