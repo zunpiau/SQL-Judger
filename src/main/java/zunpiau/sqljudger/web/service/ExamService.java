@@ -102,7 +102,13 @@ public class ExamService {
 
     @Transactional
     public List<Exam> findByTeacher(Long teacher) {
-        return examRepository.findAllByTeaching_Teacher_Number(teacher);
+        final List<Exam> exams = examRepository.findAllByTeaching_Teacher_Number(teacher);
+        for (Exam exam : exams) {
+            if (isFinish(exam)) {
+                exam.setAnswerAmount(answerSheetRepository.countByExam(exam.getId()));
+            }
+        }
+        return exams;
     }
 
     @Transactional

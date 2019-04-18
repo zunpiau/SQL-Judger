@@ -16,14 +16,12 @@ import java.util.Set;
 @Service
 public class AnswerSheetService {
 
-    private final JdbcService jdbcService;
     private final AnswerSheetRepository answerSheetRepository;
     private final AnswerRepository answerRepository;
     private final ExamService examService;
 
-    public AnswerSheetService(JdbcService jdbcService, AnswerSheetRepository answerSheetRepository,
+    public AnswerSheetService(AnswerSheetRepository answerSheetRepository,
             AnswerRepository answerRepository, ExamService examService) {
-        this.jdbcService = jdbcService;
         this.answerSheetRepository = answerSheetRepository;
         this.answerRepository = answerRepository;
         this.examService = examService;

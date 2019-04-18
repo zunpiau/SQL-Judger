@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: SQLJudger
@@ -35,7 +36,7 @@ admin:
 jwt:
   header: Authorization
   secret: mySecret
-  expiration: 186400
+  expiration: 372800
 judger:
   datasources:
     - jdbc-url: jdbc:postgresql://127.0.0.1:5432/judger_test

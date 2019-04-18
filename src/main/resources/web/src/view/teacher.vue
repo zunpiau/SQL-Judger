@@ -371,6 +371,7 @@
                     unixEpochToString(exam.endTime) }}</p>
                   <p class="card-text">考试班级: {{ exam.teaching.clazz.grade }} {{ exam.teaching.clazz.name }}</p>
                   <p class="card-text">试卷：{{ exam.testPaper.id }}.{{ exam.testPaper.title }}</p>
+                  <p class="card-text" v-if="exam.answerAmount">答卷：{{ exam.answerAmount }}份</p>
                 </div>
                 <div class="d-flex align-items-center">
                   <button class="btn btn-danger" v-if="cancelable(exam)" v-on:click="cancelExam(exam)">取消
