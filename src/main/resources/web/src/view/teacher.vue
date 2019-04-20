@@ -303,7 +303,8 @@
                   <label>题目</label>
                   <div v-for="(exerciseConfig, index) in selectTestPaper.exerciseConfigs">
                     <div class="d-flex justify-content-between align-items-center">
-                      <p class="h5">{{ index}}. {{ exerciseConfig.exercise.id }}-{{ exerciseConfig.exercise.title }}</p>
+                      <p class="h5">{{ index + 1 }}. {{ exerciseConfig.exercise.id }}-{{ exerciseConfig.exercise.title
+                        }}</p>
                       <div class="d-flex">
                         <input class="score form-control mr-2" type="number" v-model="exerciseConfig.score">
                         <button @click=" common.deleteElement(selectTestPaper.exerciseConfigs, exerciseConfig) "
