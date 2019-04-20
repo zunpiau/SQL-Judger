@@ -276,9 +276,9 @@
               </div>
             </div>
           </div>
-          <div class="modal fade" id="testPaperModal" ref="testPaperModal" role="dialog" tabindex="-1">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
+          <div class="modal fade full-screen" id="testPaperModal" ref="testPaperModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog modal-lg full-screen" role="document">
+              <div class="modal-content full-screen">
                 <div class="modal-header">
                   <h5 class="modal-title">查看试卷</h5>
                   <button class="close" data-dismiss="modal" type="button">
@@ -286,29 +286,35 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                  <div class="form-group">
-                    <label for="testPaperTitleInput">标题</label>
-                    <input class="form-control" id="testPaperTitleInput" placeholder="标题" required
-                           v-model="selectTestPaper.title">
-                  </div>
-                  <div class="form-group">
-                    <label for="testPaperScoreInput">总分</label>
-                    <input class="form-control" disabled id="testPaperScoreInput" placeholder="总分" required
-                           v-model="selectTestPaper.score">
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="testPaperTitleInput">标题</label>
+                        <input class="form-control" id="testPaperTitleInput" placeholder="标题" required
+                               v-model="selectTestPaper.title">
+                      </div>
+                      <div class="form-group">
+                        <label for="testPaperScoreInput">总分</label>
+                        <input class="form-control" disabled id="testPaperScoreInput" placeholder="总分" required
+                               v-model="selectTestPaper.score">
+                      </div>
+                    </div>
                   </div>
                   <label>题目</label>
-                  <div v-for="exerciseConfig in selectTestPaper.exerciseConfigs">
+                  <div v-for="(exerciseConfig, index) in selectTestPaper.exerciseConfigs">
                     <div class="d-flex justify-content-between align-items-center">
-                      <p class="h5">{{ exerciseConfig.exercise.id }}. {{ exerciseConfig.exercise.title }}</p>
+                      <p class="h5">{{ index}}. {{ exerciseConfig.exercise.id }}-{{ exerciseConfig.exercise.title }}</p>
                       <div class="d-flex">
                         <input class="score form-control mr-2" type="number" v-model="exerciseConfig.score">
                         <button @click=" common.deleteElement(selectTestPaper.exerciseConfigs, exerciseConfig) "
-                                class="btn btn-danger">
+                                class="btn btn-out-danger">
                           移除
                         </button>
                       </div>
                     </div>
                     <p>{{ exerciseConfig.exercise.description }}</p>
+                    <pre class="code">{{ exerciseConfig.exercise.inputSQL }}</pre>
+                    <pre class="code">{{ exerciseConfig.exercise.expectedSQL }}</pre>
                   </div>
                 </div>
                 <div class="modal-footer">
