@@ -52,14 +52,23 @@
           </div>
         </div>
         <div class="tab-pane fade" id="exercise" role="tabpanel">
-          <h2 class="h2 mb-3">题目列表</h2>
-          <div class="input-group form-inline d-flex justify-content-end mb-3">
-            <b-dropdown class="mr-2" text="题目类型">
-              <b-dropdown-item @click="onTypeSelect('')">全部</b-dropdown-item>
-              <b-dropdown-item @click="onTypeSelect(type)" v-for="type in exerciseTypes">{{ type }}</b-dropdown-item>
-            </b-dropdown>
-            <button class="btn btn-secondary mr-2" data-target="#importModal" data-toggle="modal">导入题目</button>
-            <button class="btn btn-primary" data-target="#addExerciseModal" data-toggle="modal">创建题目</button>
+          <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+            <h2 class="h2 mb-3">题目列表</h2>
+            <div class="d-flex justify-content-between align-items-center">
+              <input class="search form-control mr-2" placeholder="搜索" v-model="filter.exercise">
+              <div class="dropdown mr-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" type="button">
+                  题目类型
+                </button>
+                <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
+                  <div @click="filter.type = ''" class="dropdown-item">全部</div>
+                  <div @click="filter.type = type" class="dropdown-item" v-for="type in exerciseTypes">{{ type }}</div>
+                </div>
+              </div>
+              <button class="btn btn-outline-secondary mr-2" data-target="#importModal" data-toggle="modal">导入题目
+              </button>
+              <button class="btn btn-outline-primary" data-target="#addExerciseModal" data-toggle="modal">创建题目</button>
+            </div>
           </div>
           <div class="modal fade full-screen" id="addExerciseModal" ref="addExerciseModal" role="dialog"
                tabindex="-1">
@@ -218,7 +227,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="exercise in filteredExercise">
+              <tr v-for="exercise in filterExercises">
                 <th scope="row">{{ exercise.id }}</th>
                 <td class="exercise-title">{{ exercise.title }}</td>
                 <td class="exercise-description">{{ exercise.description }}</td>
@@ -238,13 +247,15 @@
           </div>
         </div>
         <div class="tab-pane fade" id="testPaper" role="tabpanel">
-          <div
-              class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+          <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
             <h3 class="h3">试卷列表</h3>
-            <button class="btn btn-outline-primary" data-target="#createTestPaperModal" data-toggle="modal">创建试卷
-            </button>
+            <div class="d-flex justify-content-between align-items-center">
+              <input class="search form-control mr-2" placeholder="搜索" v-model="filter.testPaper">
+              <button class="btn btn-outline-primary" data-target="#createTestPaperModal" data-toggle="modal">创建试卷
+              </button>
+            </div>
           </div>
-          <div class="card mb-5 shadow-sm" v-for="testPaper, index in testPapers">
+          <div class="card mb-5 shadow-sm" v-for="testPaper, index in filterTestPapers">
             <div class="card-header">
               <span class="h4">
                 {{ testPaper.id }}.{{ testPaper.title }}
@@ -351,15 +362,19 @@
           </div>
         </div>
         <div class="tab-pane fade" id="exam" role="tabpanel">
-          <div
-              class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+          <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
             <h3 class="h3">考试列表</h3>
-            <button class="btn btn-outline-primary" data-target="#createExamModal" data-toggle="modal">创建考试</button>
+            <div class="d-flex justify-content-between align-items-center">
+              <input class="search form-control mr-2" placeholder="搜索" v-model="filter.exam">
+              <button @click.once="testPapers.length !== 0 || loadTestPaper()" class="btn btn-outline-primary"
+                      data-target="#createExamModal" data-toggle="modal">创建考试
+              </button>
+            </div>
           </div>
-          <div v-if=" this.exams.length === 0">
+          <div v-if="exams.length === 0">
             <p>当前没有考试</p>
           </div>
-          <div class="card mb-5 shadow-sm" v-for="exam in exams">
+          <div class="card mb-5 shadow-sm" v-for="exam in filterExams">
             <div class="card-header">
               <span class="h4">{{ exam.id }}. {{ exam.title }}</span>
               <span class="badge badge-info ml-2">{{ getBadgeText(exam) }}</span>
@@ -487,22 +502,22 @@
   .btn-outline-primary.dropdown-toggle:active {
     background-color: unset !important;
   }
+
+  input.search {
+    width: 8rem;
+  }
 </style>
 <script>
     import axios from 'axios';
     import moment from 'moment';
     import Vue from 'vue'
     import $ from 'jquery';
-    import BootstrapVue from 'bootstrap-vue'
     import "bootstrap/dist/js/bootstrap.js"
     import datePicker from 'vue-bootstrap-datetimepicker';
     import * as common from '../lib/commom.js'
 
     import 'bootstrap/dist/css/bootstrap.css'
-    import 'bootstrap-vue/dist/bootstrap-vue.css'
     import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
-
-    Vue.use(BootstrapVue);
 
     moment.locale('zh-cn');
     const app = {
@@ -581,9 +596,12 @@
                 selectExercise: {},
                 selectTestPaper: {},
                 total: 0,
-                filter: "",
-                typeFilter: "",
-                filteredExercise: [],
+                filter: {
+                    exam: '',
+                    testPaper: '',
+                    exercise: '',
+                    type: '',
+                },
                 common: common,
             }
         },
@@ -601,9 +619,6 @@
                 });
         },
         watch: {
-            exercises() {
-                this.filterExercise();
-            },
             exams() {
                 this.classifyExams();
             },
@@ -633,25 +648,25 @@
             },
             disableRunSQL() {
                 return this.exercise.inputSQL === "";
+            },
+            filterExams() {
+                return this.exams.filter(e => this.filter.exam === '' || e.title.indexOf(this.filter.exam) !== -1);
+            },
+            filterTestPapers() {
+                return this.testPapers.filter(e => this.filter.testPaper === '' || e.title.indexOf(this.filter.testPaper) !== -1);
+            },
+            filterExercises() {
+                return this.exercises.filter(e => (this.filter.exercise === '' || e.title.indexOf(this.filter.exercise) !== -1) &&
+                    (this.filter.type === '' || e.type === this.filter.type));
             }
         },
         methods: {
             addExerciseTypeAmount() {
                 Vue.set(this.composeTestPaperRequest.amounts, this.compose.exerciseType, this.compose.amount);
             },
-            onTypeSelect(type) {
-                this.typeFilter = type;
-                this.filterExercise();
-            },
             filename(exam) {
                 const date = moment.unix(exam.startTime).format("MMMDo");
                 return `${date}-${exam.title}-${exam.teaching.clazz.name}.xls`
-            },
-            filterExercise() {
-                const filtered = this.exercises.filter(e => {
-                    return this.typeFilter === "" || e.type === this.typeFilter;
-                });
-                common.replaceArray(this.filteredExercise, filtered);
             },
             onStartTimeChange(e) {
                 console.log(e.date.unix());

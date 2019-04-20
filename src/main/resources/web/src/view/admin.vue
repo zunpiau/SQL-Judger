@@ -282,16 +282,20 @@
         </div>
         <div class="tab-pane fade" id="student" role="tabpanel">
           <h1 class="h2 mb-3">学生管理</h1>
-          <div
-              class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+          <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
             <h3 class="h3">学生列表</h3>
-            <div class="mb-2 mb-md-0">
-              <b-dropdown class="mr-2" text="班级">
-                <b-dropdown-item @click="onClazzSelect(-1)">全部</b-dropdown-item>
-                <b-dropdown-item @click="onClazzSelect(clazz.id)" v-for="clazz in clazzs">
-                  {{ clazz.grade }} {{ clazz.name }}
-                </b-dropdown-item>
-              </b-dropdown>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="dropdown mr-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" type="button">
+                  班级
+                </button>
+                <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
+                  <div @click="clazzFilter = -1" class="dropdown-item">全部</div>
+                  <div @click="clazzFilter = clazz.id" class="dropdown-item" v-for="clazz in clazzs">
+                    {{ clazz.grade }} {{ clazz.name }}
+                  </div>
+                </div>
+              </div>
               <button class="btn btn-outline-primary" data-target="#studentModal" data-toggle="modal">添加
               </button>
             </div>
@@ -308,7 +312,7 @@
               </tr>
               </thead>
               <tbody id="student_tbody">
-              <tr :key="student.number" v-for="(student, index) in studentFiltered">
+              <tr :key="student.number" v-for="(student, index) in filterStudents">
                 <th scope="row">{{ index + 1 }}</th>
                 <td>{{ student.number }}</td>
                 <td>{{ student.name }}</td>
@@ -396,14 +400,10 @@
     import axios from 'axios';
     import Vue from 'vue'
     import $ from 'jquery';
-    import BootstrapVue from 'bootstrap-vue'
     import "bootstrap/dist/js/bootstrap.js"
     import * as common from '../lib/commom.js'
 
     import 'bootstrap/dist/css/bootstrap.css'
-    import 'bootstrap-vue/dist/bootstrap-vue.css'
-
-    Vue.use(BootstrapVue);
 
     export default {
         data() {
@@ -447,24 +447,12 @@
             await common.load('/admin/clazz', this.clazzs);
             await common.load('/admin/teacher', this.teachers);
         },
-        watch: {
-            students() {
-                this.filterClazz();
+        computed: {
+            filterStudents() {
+                return this.students.filter(e => this.clazzFilter === -1 || e.clazz.id === this.clazzFilter)
             }
         },
         methods: {
-            onClazzSelect(clazz) {
-                this.clazzFilter = clazz;
-                this.filterClazz();
-            },
-            filterClazz() {
-                if (this.clazzFilter === -1) {
-                    common.replaceArray(this.studentFiltered, this.students)
-                } else {
-                    const filtered = this.students.filter(e => e.clazz.id === this.clazzFilter);
-                    common.replaceArray(this.studentFiltered, filtered);
-                }
-            },
             showModifyTeacher(teacher, index) {
                 this.selectTeacher = teacher;
                 this.selectTeacherIndex = index;
