@@ -23,7 +23,7 @@ public class StudentService {
         return studentRepository.saveAndFresh(student);
     }
 
-    @CachePut(cacheNames = "student", key = "#student.getNumber()")
+    @CacheEvict(cacheNames = "student", key = "#student.getNumber()")
     public Student update(Student student) {
         return studentRepository.merger(student);
     }

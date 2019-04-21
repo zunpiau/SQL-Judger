@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -81,7 +82,7 @@ public class ExamService {
         final Teaching teaching = optionalTeaching
                 .orElseThrow(() -> new NoEntityException(NoEntityException.STATUS_NO_TEACHING));
         exam.setTeaching(teaching);
-        examRepository.save(exam);
+        examRepository.saveAndFresh(exam);
         return exam;
     }
 
@@ -131,12 +132,11 @@ public class ExamService {
         return exam;
     }
 
-    @CachePut(cacheNames = "exam", key = "#examId")
+    @CacheEvict(cacheNames = "exam", key = "#examId")
     public boolean cancelExam(Long examId, Long teacherNumber) {
         return setStatus(examId, teacherNumber, Exam.STATUS_CANCEL);
     }
 
-    @CachePut(cacheNames = "exam", key = "#examId")
     public boolean setScoreViewable(Long examId, Long teacherNumber) {
         return setStatus(examId, teacherNumber, Exam.STATUS_REVIEWED);
     }
@@ -194,6 +194,7 @@ public class ExamService {
 
     @Async("examExecutor")
     @Transactional(isolation = Isolation.READ_COMMITTED)
+    @CacheEvict(cacheNames = "exam", allEntries = true)
     public Future<Void> correctAll(Exam exam) {
         log.info("correct examID: {}", exam.getId());
         long start = System.currentTimeMillis();
