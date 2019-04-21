@@ -75,14 +75,14 @@
             <div class="modal-dialog modal-lg full-screen" role="document">
               <div class="modal-content full-screen">
                 <div class="modal-header">
-                  <h5 class="modal-title">创建题目</h5>
+                  <h5 class="modal-title">{{ exercise.id ? '修改题目' : '创建题目' }}</h5>
                   <button class="close" data-dismiss="modal" type="button">
                     <span>&times;</span>
                   </button>
                 </div>
                 <div class="modal-body">
-                  <section class="mt-3">
-                    <h3 class="h3">基本信息</h3>
+                  <section>
+                    <h5 class="h5">基本信息</h5>
                     <div class="form-group">
                       <label for="exerciseTitleInput">标题</label>
                       <input class="form-control" id="exerciseTitleInput" placeholder="标题" required
@@ -111,8 +111,8 @@
                                 v-model="exercise.description"></textarea>
                     </div>
                   </section>
-                  <section class="mt-5">
-                    <h3 class="h3">输入数据</h3>
+                  <section>
+                    <h5 class="h5">输入数据</h5>
                     <div class="form-group">
                       <label for="inputSQLInput">表结构和初始数据</label>
                       <textarea class="form-control" id="inputSQLInput" placeholder="SQL语句，可为空" rows="3"
@@ -141,8 +141,8 @@
                       </table>
                     </div>
                   </section>
-                  <section class="mt-5">
-                    <h3 class="h3">期望输出</h3>
+                  <section>
+                    <h5 class="h5">期望输出</h5>
                     <div class="form-group">
                       <textarea class="form-control" placeholder="SQL语句" rows="3"
                                 v-model="exercise.expectedSQL"></textarea>
@@ -313,7 +313,7 @@
                       <div class="d-flex">
                         <input class="score form-control mr-2" type="number" v-model="exerciseConfig.score">
                         <button @click=" common.deleteElement(selectTestPaper.exerciseConfigs, exerciseConfig) "
-                                class="btn btn-out-danger">
+                                class="btn btn-outline-danger">
                           移除
                         </button>
                       </div>
@@ -352,7 +352,7 @@
                       <li>{{ type}}: {{ composeTestPaperRequest.amounts[type] }}道</li>
                     </div>
                   </ul>
-                  <div class="input-group mb-3">
+                  <div class="input-group">
                     <div class="dropdown mr-2">
                       <button class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" type="button">
                         {{ compose.exerciseType }}
@@ -532,7 +532,7 @@
     import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
 
     moment.locale('zh-cn');
-    const app = {
+    export default {
         name: 'app',
         components: {
             datePicker
@@ -993,5 +993,4 @@
             },
         }
     };
-    export default app;
 </script>

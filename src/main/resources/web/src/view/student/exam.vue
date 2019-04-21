@@ -152,14 +152,10 @@
     import $ from 'jquery';
     import axios from 'axios';
     import "bootstrap/dist/js/bootstrap.js"
-    import Vue from 'vue'
-    import BootstrapVue from 'bootstrap-vue'
     import VueCountdown from '@chenfengyuan/vue-countdown';
     import 'bootstrap/dist/css/bootstrap.css'
-    import 'bootstrap-vue/dist/bootstrap-vue.css'
     import * as common from '../../lib/commom.js'
 
-    Vue.use(BootstrapVue);
     moment.locale('zh-cn');
 
     function showErrorMsg(msg) {
@@ -227,7 +223,7 @@
                 });
             });
 
-            this.exam.endTime = moment().unix() + 15;
+            this.exam.endTime = moment().unix() + 315;
             const remain = this.exam.endTime - moment().unix();
             this.time = remain * 1000;
             console.log(remain);

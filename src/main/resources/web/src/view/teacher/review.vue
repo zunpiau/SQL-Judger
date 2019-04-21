@@ -112,15 +112,11 @@
 </style>
 <script>
     import "bootstrap/dist/js/bootstrap.js"
-    import Vue from 'vue'
-    import BootstrapVue from 'bootstrap-vue'
     import 'bootstrap/dist/css/bootstrap.css'
-    import 'bootstrap-vue/dist/bootstrap-vue.css'
     import * as common from '../../lib/commom.js'
     import ResultWrapper from "../../components/ResultWrapper";
     import axios from 'axios';
 
-    Vue.use(BootstrapVue);
     export default {
         components: {ResultWrapper},
         comments: {

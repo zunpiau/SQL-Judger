@@ -71,15 +71,11 @@
     import moment from 'moment';
     import $ from 'jquery';
     import "bootstrap/dist/js/bootstrap.js"
-    import Vue from 'vue'
-    import BootstrapVue from 'bootstrap-vue'
     import axios from 'axios'
 
     import 'bootstrap/dist/css/bootstrap.css'
-    import 'bootstrap-vue/dist/bootstrap-vue.css'
     import * as common from '../lib/commom.js'
 
-    Vue.use(BootstrapVue);
     moment.locale('zh-cn');
     export default {
         name: 'app',

@@ -67,13 +67,8 @@
     import $ from 'jquery';
     import * as common from './../lib/commom.js'
     import "bootstrap/dist/js/bootstrap.js"
-    import Vue from 'vue'
-    import BootstrapVue from 'bootstrap-vue'
 
     import 'bootstrap/dist/css/bootstrap.css'
-    import 'bootstrap-vue/dist/bootstrap-vue.css'
-
-    Vue.use(BootstrapVue);
 
     const app = {
         name: 'app',
