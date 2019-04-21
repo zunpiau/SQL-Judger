@@ -27,6 +27,13 @@ public class ExerciseService {
         this.jdbcService = jdbcService;
     }
 
+    public Exercise saveOrUpdate(Exercise exercise) {
+        if (exercise.getId() != null) {
+            return exerciseRepository.merger(exercise);
+        }
+        return exerciseRepository.save(exercise);
+    }
+
     public List<Exercise> convertExercise(MultipartFile file) throws IOException {
         Workbook workbook;
         workbook = WorkbookFactory.create(file.getInputStream());

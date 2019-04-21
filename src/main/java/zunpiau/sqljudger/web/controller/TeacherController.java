@@ -86,7 +86,7 @@ public class TeacherController {
     public BaseResponse<?> addExercise(@RequestBody Exercise exercise,
             @RequestAttribute(JwtInterceptor.ATTR_NUMBER) Long number) {
         exercise.setTeacher(new Teacher(number));
-        return BaseResponse.ok(exerciseRepository.save(exercise));
+        return BaseResponse.ok(exerciseService.saveOrUpdate(exercise));
     }
 
     @PostMapping("exercise/import")

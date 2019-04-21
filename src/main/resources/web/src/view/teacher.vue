@@ -227,17 +227,22 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="exercise in filterExercises">
-                <th scope="row">{{ exercise.id }}</th>
-                <td class="exercise-title">{{ exercise.title }}</td>
-                <td class="exercise-description">{{ exercise.description }}</td>
-                <td>{{ exercise.score }}</td>
+              <tr v-for="filterExercise in filterExercises">
+                <th scope="row">{{ filterExercise.id }}</th>
+                <td class="exercise-title">{{ filterExercise.title }}</td>
+                <td class="exercise-description">{{ filterExercise.description }}</td>
+                <td>{{ filterExercise.score }}</td>
                 <td class="exercise-operation">
-                  <button class="btn btn-primary btn-sm mr-2" v-on:click="showExercise(exercise)">
+                  <button class="btn btn-primary btn-sm mr-2" data-target="#exerciseModal" data-toggle="modal"
+                          v-on:click="selectExercise = filterExercise">
                     详情
                   </button>
-                  <button class="btn btn-danger btn-sm" v-if="deleteable(exercise)"
-                          v-on:click="deleteExercise(exercise)">
+                  <button class="btn btn-secondary btn-sm mr-2" data-target="#addExerciseModal" data-toggle="modal"
+                          v-if="deleteable(filterExercise)" v-on:click="exercise = filterExercise">
+                    修改
+                  </button>
+                  <button class="btn btn-danger btn-sm" v-if="deleteable(filterExercise)"
+                          v-on:click="deleteExercise(filterExercise)">
                     删除
                   </button>
                 </td>
@@ -494,7 +499,7 @@
   }
 
   .exercise-operation {
-    width: 8.5rem;
+    width: 13rem;
   }
 
   .btn-outline-primary.dropdown-toggle {
@@ -564,6 +569,7 @@
                 currentTeacher: null,
                 exercises: [],
                 exercise: {
+                    id: null,
                     title: "",
                     type: "",
                     description: "",
@@ -788,10 +794,6 @@
                     }
                 }).catch(reason => console.log(reason))
             },
-            showExercise(exercise) {
-                this.selectExercise = exercise;
-                $('#exerciseModal').modal('show');
-            },
             loadExercises() {
                 common.load2("/teacher/exercise", this.exercises);
             },
@@ -822,10 +824,19 @@
                 }
                 axios.post("/teacher/exercise", this.exercise)
                     .then((response) => {
-                        console.log(response.data);
                         if (response.data.status === 200) {
-                            this.exercises.push(response.data.data);
-                            alert("已添加");
+                            const exercise = response.data.data;
+                            let indexOf = -1
+                            this.exercises.forEach((e, i) => {
+                                if (e.id === exercise.id)
+                                    indexOf = i
+                            });
+                            if (indexOf !== -1) {
+                                Vue.set(this.exercises, indexOf, exercise);
+                            } else {
+                                this.exercises.push(exercise);
+                            }
+                            $(this.$refs.addExerciseModal).modal('hide');
                         } else {
                             alert(response.data.msg);
                         }

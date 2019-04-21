@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ExerciseRepository extends CrudRepository<Exercise, Long> {
+public interface ExerciseRepository extends CrudRepository<Exercise, Long>, EnhanceRepository<Exercise, Long> {
 
     @Modifying
     @Transactional
