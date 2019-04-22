@@ -67,7 +67,9 @@
               </div>
               <button class="btn btn-outline-secondary mr-2" data-target="#importModal" data-toggle="modal">导入题目
               </button>
-              <button class="btn btn-outline-primary" data-target="#addExerciseModal" data-toggle="modal">创建题目</button>
+              <button @click="exercise = emptyExercise" class="btn btn-outline-primary" data-target="#addExerciseModal"
+                      data-toggle="modal">创建题目
+              </button>
             </div>
           </div>
           <div class="modal fade full-screen" id="addExerciseModal" ref="addExerciseModal" role="dialog"
@@ -569,6 +571,17 @@
                 currentTeacher: null,
                 exercises: [],
                 exercise: {
+                    id: null,
+                    title: "",
+                    type: "",
+                    description: "",
+                    score: "10",
+                    inputSQL: "",
+                    inputData: null,
+                    expectedSQL: "",
+                    expectedData: null,
+                },
+                emptyExercise: {
                     id: null,
                     title: "",
                     type: "",
