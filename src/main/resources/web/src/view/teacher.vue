@@ -294,27 +294,25 @@
                 </div>
               </div>
             </div>
-            <div class="modal fade full-screen" id="testPaperModal" ref="testPaperModal" role="dialog" tabindex="-1">
+            <div class="modal full-screen pr-0" id="testPaperModal" ref="testPaperModal" role="dialog" tabindex="-1">
               <div class="modal-dialog modal-lg full-screen" role="document">
-                <div class="modal-content full-screen">
-                  <div class="modal-header">
+                <div class="modal-content full-screen testpaper">
+                  <div class="modal-header fixed-top bg-white d-flex justify-content-between">
                     <h5 class="modal-title">查看试卷</h5>
-                    <button class="close" data-dismiss="modal" type="button">
-                      <span>&times;</span>
-                    </button>
+                    <div class="d-flex">
+                      <p class="mb-0 mr-2" for="testPaperScoreInput">总分: {{selectTestPaper.score}}</p>
+                      <button class="close" data-dismiss="modal" type="button">
+                        <span>&times;</span>
+                      </button>
+                    </div>
                   </div>
-                  <div class="modal-body">
+                  <div class="modal-body pt-2">
                     <div class="row">
                       <div class="col-6">
                         <div class="form-group">
                           <label for="testPaperTitleInput">标题</label>
                           <input class="form-control" id="testPaperTitleInput" placeholder="标题" required
                                  v-model="selectTestPaper.title">
-                        </div>
-                        <div class="form-group">
-                          <label for="testPaperScoreInput">总分</label>
-                          <input class="form-control" disabled id="testPaperScoreInput" placeholder="总分" required
-                                 v-model="selectTestPaper.score">
                         </div>
                       </div>
                     </div>
@@ -357,7 +355,8 @@
                   </div>
                   <div class="modal-body">
                     <div class="input-group mb-3">
-                      <input class="form-control mr-2" placeholder="试卷名称" v-model="composeTestPaperRequest.title">
+                      <input class="form-control mr-2" placeholder="试卷名称" required
+                             v-model="composeTestPaperRequest.title">
                     </div>
                     <label>选择题目类型/数量</label>
                     <ul>
@@ -532,6 +531,10 @@
 
   input.search {
     width: 8rem;
+  }
+
+  .testpaper.modal-content {
+    margin-top: 60px;
   }
 </style>
 <script>
@@ -987,6 +990,8 @@
                     .catch(reason => console.log(reason));
             },
             composeTestPaper() {
+                if (!this.composeTestPaperRequest.title)
+                    return
                 axios.post("/teacher/testPaper/compose", this.composeTestPaperRequest)
                     .then(res => {
                         this.testPapers.push(res.data.data);
