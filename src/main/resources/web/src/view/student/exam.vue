@@ -1,18 +1,23 @@
 <style>
-  textarea.form-control {
-    height: calc(100% - 3rem);
-  }
-
   #main {
     height: 100vh;
+  }
+
+  #tab-container {
+    max-height: calc(100vh - 10rem) !important;
+  }
+
+  .panel {
+    height: unset !important;
     overflow-y: auto;
   }
 
-  .panel button {
+  button.fixed-width {
     width: 5rem;
   }
 
-  textarea {
+  textarea.form-control {
+    height: calc(100vh - 10rem) !important;
     resize: none;
   }
 
@@ -34,35 +39,26 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark p-0 shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark p-0 shadow-sm d-flex justify-content-between">
       <span class="navbar-brand ml-3">{{ exam.title }}</span>
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="navbarDropdown" role="button">
-            选题
-          </a>
-          <div aria-labelledby="navbarDropdown" class="dropdown-menu">
-            <a class="dropdown-item" v-for="n in exam.testPaper.exerciseConfigs.length"
-               v-on:click="setPanel(n)">{{n}}</a>
-          </div>
-        </li>
-      </ul>
-      <span class="text-light mr-2 font-weight-bold">
-      <countdown :interval="1000" :time="time" @end="onExamFinish" tag="span">
-        <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
-      </countdown>
-              </span>
+      <span class="text-light mr-3 font-weight-bold">
+        <countdown :interval="1000" :time="time" @end="onExamFinish" tag="span">
+          <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
+        </countdown>
+      </span>
     </nav>
     <main class="container-fluid" role="main">
-      <div :id="'exercise-' + index" :key="index" class="tab-pane fade show row d-none"
-           role="tabpanel" v-for="(exerciseConfig, index) in exam.testPaper.exerciseConfigs">
-        <div class="px-3 w-50 float-left panel">
-          <div class="h3 d-flex justify-content-between">
-            <span>{{ index + 1 }}. {{ exerciseConfig.exercise.title }}</span>
-            <span class="badge badge-light">{{ exerciseConfig.score }}分</span>
-          </div>
-          <pre>{{ exerciseConfig.exercise.description }}</pre>
-          <div class="mb-2">
+      <div id="tab-container">
+        <div :class=" ['tab-panel fade row', showIndex === index ? 'show active' : 'd-none']" :id="'exercise-' + index"
+             :key="index"
+             role="tabpanel" v-for="(exerciseConfig, index) in exam.testPaper.exerciseConfigs">
+          <div class="px-3 w-50 float-left panel">
+            <div class="h3 d-flex justify-content-between">
+              <span>{{ index + 1 }}. {{ exerciseConfig.exercise.title }}</span>
+              <span class="badge badge-light">{{ exerciseConfig.score }}分</span>
+            </div>
+            <pre>{{ exerciseConfig.exercise.description }}</pre>
+            <div class="mb-2">
             <span class="mt-1 font-weight-bold" data-toggle="collapse" v-bind:href="'#inputSQL-' + index">
               表结构
               <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +66,7 @@
             <path d="M0 0h24v24H0z" fill="none"></path>
           </svg>
             </span>
-            <span v-on:click="copySQL(index)">
+              <span v-on:click="copySQL(index)">
               <svg height="24" viewBox="0 0 1024 1024" width="24" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M571.52 909.44H280.96c-61.44 0-111.36-49.92-111.36-111.36V387.2c0-61.44 49.92-111.36 111.36-111.36h290.56c61.44 0 111.36 49.92 111.36 111.36v410.88c0 61.44-49.92 111.36-111.36 111.36z m-290.56-569.6c-26.24 0-47.36 21.12-47.36 47.36v410.88c0 26.24 21.12 47.36 47.36 47.36h290.56c26.24 0 47.36-21.12 47.36-47.36V387.2c0-26.24-21.12-47.36-47.36-47.36H280.96z"
@@ -80,35 +76,48 @@
                 fill="#515151"></path>
           </svg>
             </span>
+            </div>
+            <div :id="'inputSQL-' + index" class="collapse">
+              <pre class="code">{{ exerciseConfig.exercise.inputSQL }}</pre>
+            </div>
+            <span class="mt-1 font-weight-bold">初始数据</span>
+            <div v-for="table in exerciseConfig.exercise.inputData">
+              <label>表：{{ table.name }}</label>
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th scope="col" v-for="column in table.columns">{{ column }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="row in table.data">
+                  <td v-for="item in row">{{ item }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div :id="'inputSQL-' + index" class="collapse">
-            <pre class="code">{{ exerciseConfig.exercise.inputSQL }}</pre>
-          </div>
-          <span class="mt-1 font-weight-bold">初始数据</span>
-          <div v-for="table in exerciseConfig.exercise.inputData">
-            <label>表：{{ table.name }}</label>
-            <table class="table table-striped">
-              <thead>
-              <tr>
-                <th scope="col" v-for="column in table.columns">{{ column }}</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr v-for="row in table.data">
-                <td v-for="item in row">{{ item }}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="px-3 w-50 float-left panel">
-            <textarea class="form-control" placeholder="请写下 SQL 语句"
-                      v-model="answerSheet.answers[index].inputSQL"></textarea>
-          <div class="d-flex justify-content-between">
-            <button class="btn btn-secondary mt-1" v-on:click="prevPanel(index)">上一题</button>
-            <button class="btn btn-primary mt-1" v-on:click="nextPanel(index)">下一题</button>
+          <div class="px-3 w-50 float-left panel">
+          <textarea class="form-control" placeholder="请写下 SQL 语句"
+                    v-model="answerSheet.answers[index].inputSQL"></textarea>
           </div>
         </div>
+      </div>
+      <div class="d-flex justify-content-between align-content-center p-3 fixed-bottom bg-white">
+        <button :disabled="showIndex ===0 " class="btn btn-secondary fixed-width" v-on:click="prevPanel()">
+          上一题
+        </button>
+        <div class="btn-toolbar" role="toolbar">
+          <div class="btn-group btn-group-sm" role="group">
+            <button
+                :class="['btn', answerSheet.answers[n-1].inputSQL ? 'btn-info' : 'btn-outline-info']"
+                v-for="n in exam.testPaper.exerciseConfigs.length" v-on:click="setPanel(n)">{{n}}
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-primary fixed-width" v-on:click="nextPanel()">
+          {{ showIndex === exam.testPaper.exerciseConfigs.length - 1 ? '交卷' : '下一题'}}
+        </button>
       </div>
     </main>
     <div class="modal fade" id="submitModal" role="dialog" tabindex="-1">
@@ -239,16 +248,11 @@
                     $("#alert").removeClass("d-none").addClass("show");
                 }, showAlert * 1000);
             }
-
-            this.$nextTick(() => {
-                $("#exercise-0").addClass("active").removeClass("d-none");
-                $(`#exercise-${this.exam.testPaper.exerciseConfigs.length - 1} button`).last().text("交卷");
-                $("#exercise-0 button").first().attr("disabled", "true")
-            })
         },
         data() {
             return {
                 time: null,
+                showIndex: 0,
                 exam: {
                     testPaper: {
                         exerciseConfigs: []
@@ -290,23 +294,18 @@
                     })
             },
             setPanel(n) {
-                $("div.tab-pane.fade.show.row.active").addClass("d-none").removeClass("active");
-                $(`#exercise-${(n - 1)}`).addClass("active").removeClass("d-none");
+                this.showIndex = n - 1;
             },
-            switchPanel(old, now) {
-                $(`#exercise-${old}`).addClass("d-none").removeClass("active");
-                $(`#exercise-${(now)}`).addClass("active").removeClass("d-none");
-            },
-            nextPanel(index) {
-                if (index < this.exam.testPaper.exerciseConfigs.length - 1) {
-                    this.switchPanel(index, index + 1);
+            nextPanel() {
+                if (this.showIndex < this.exam.testPaper.exerciseConfigs.length - 1) {
+                    this.showIndex += 1;
                 } else {
                     $('#submitModal').modal("show");
                 }
             },
-            prevPanel(index) {
-                if (index > 0) {
-                    this.switchPanel(index, index - 1);
+            prevPanel() {
+                if (this.showIndex > 0) {
+                    this.showIndex -= 1;
                 }
             },
             copySQL(index) {
