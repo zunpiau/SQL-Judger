@@ -51,13 +51,13 @@
     <div class="form-check-inline mt-2">
       <input class="form-check-input" id="typeStudent" name="type" type="radio" value="student">
       <label class="form-check-label" for="typeStudent">
-        student
+        学生
       </label>
     </div>
     <div class="form-check-inline mt-2">
       <input checked class="form-check-input" id="typeTeacher" name="type" type="radio" value="teacher">
       <label class="form-check-label" for="typeTeacher">
-        teacher
+        教师
       </label>
     </div>
     <button class="btn btn-lg btn-primary btn-block mt-4" id="btn" type="submit">登录</button>

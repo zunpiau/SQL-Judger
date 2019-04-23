@@ -47,7 +47,7 @@
           </div>
         </li>
       </ul>
-      <span class="text-light mr-2">
+      <span class="text-light mr-2 font-weight-bold">
       <countdown :interval="1000" :time="time" @end="onExamFinish" tag="span">
         <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
       </countdown>
