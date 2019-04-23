@@ -5,6 +5,10 @@
     padding: 0.5rem;
 }
 
+.navbar {
+    height: 48px;
+}
+
 pre {
     white-space: pre-wrap;
 }
