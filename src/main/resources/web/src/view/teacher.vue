@@ -316,6 +316,23 @@
                         </div>
                       </div>
                     </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <div class="form-group">
+                          <label>添加题目</label>
+                          <input class="form-control" placeholder="题目搜索" v-model="searchExercise">
+                          <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle w-100 d-none" data-display="static"
+                                    data-toggle="dropdown" id="searchDropdown" type="button"></button>
+                            <div class="dropdown-menu" id="searchDropdownMenu">
+                              <div @click="addTestPaperExercise(selectTestPaper, exercise)" class="dropdown-item"
+                                   v-for=" exercise in searchExercises">{{ exercise.title }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <label>题目</label>
                     <div v-for="(exerciseConfig, index) in selectTestPaper.exerciseConfigs">
                       <div class="d-flex justify-content-between align-items-center">
@@ -649,6 +666,7 @@
                     type: '',
                 },
                 common: common,
+                searchExercise: '',
             }
         },
         async created() {
@@ -683,6 +701,11 @@
                     this.selectTestPaper.score = t;
                 },
                 deep: true,
+            },
+            searchExercise() {
+                if (this.searchExercise.length > 0 && !$("#searchDropdownMenu").hasClass('show')) {
+                    $('#searchDropdown').dropdown("toggle");
+                }
             }
         },
         computed: {
@@ -704,9 +727,20 @@
             filterExercises() {
                 return this.exercises.filter(e => (this.filter.exercise === '' || e.title.indexOf(this.filter.exercise) !== -1) &&
                     (this.filter.type === '' || e.type === this.filter.type));
+            },
+            searchExercises() {
+                return this.exercises.filter(e => (this.searchExercise !== ''
+                    && e.title.indexOf(this.searchExercise) !== -1)
+                    && this.selectTestPaper.exerciseConfigs.findIndex(c => c.exercise.id === e.id) === -1);
             }
         },
         methods: {
+            addTestPaperExercise(testPaper, exercise) {
+                testPaper.exerciseConfigs.push({
+                    score: exercise.score,
+                    exercise: exercise,
+                })
+            },
             addExerciseTypeAmount() {
                 Vue.set(this.composeTestPaperRequest.amounts, this.compose.exerciseType, this.compose.amount);
             },
