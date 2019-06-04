@@ -55,13 +55,15 @@ public class TeacherController {
     private final ExamService examService;
     private final AnswerSheetService answerSheetService;
     private final JdbcService jdbcService;
+    private final ConcurrentMapCacheManager cacheManager;
 
     @Autowired
     public TeacherController(ExerciseRepository exerciseRepository,
             ExerciseService exerciseService, TeachingRepository teachingRepository,
             TeacherRepository teacherRepository,
             TestPaperService testPaperService, ExamService examService,
-            AnswerSheetService answerSheetService, JdbcService jdbcService) {
+            AnswerSheetService answerSheetService, JdbcService jdbcService,
+            ConcurrentMapCacheManager cacheManager) {
         this.exerciseRepository = exerciseRepository;
         this.exerciseService = exerciseService;
         this.teachingRepository = teachingRepository;
@@ -70,6 +72,7 @@ public class TeacherController {
         this.examService = examService;
         this.answerSheetService = answerSheetService;
         this.jdbcService = jdbcService;
+        this.cacheManager = cacheManager;
     }
 
     @GetMapping("profile")
@@ -225,6 +228,12 @@ public class TeacherController {
     @ExceptionHandler({ConstraintViolationException.class, SQLException.class})
     public BaseResponse<?> handleSQLExcetion(Exception e) {
         return new BaseResponse<>(400, e.getMessage(), null);
+    }
+
+    @GetMapping("clearCache")
+    public ResponseEntity<?> clearChahe() {
+        cacheManager.getCache("exam").clear();
+        return ResponseEntity.ok().build();
     }
 
 }
