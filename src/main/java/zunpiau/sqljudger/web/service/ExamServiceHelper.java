@@ -15,6 +15,7 @@ import zunpiau.sqljudger.web.controller.response.ExerciseConfigVo;
 import zunpiau.sqljudger.web.domain.Answer;
 import zunpiau.sqljudger.web.domain.AnswerSheet;
 import zunpiau.sqljudger.web.domain.Exam;
+import zunpiau.sqljudger.web.domain.Exercise;
 
 import java.util.List;
 import java.util.Map;
@@ -41,15 +42,16 @@ public class ExamServiceHelper {
 
     @Async("answersheetExecutor")
     @Transactional
-    public Future<AnswerSheet> correctAsync(AnswerSheet answerSheet, CountDownLatch latch,
+    public Future<AnswerSheet> correctAnswerSheet(AnswerSheet answerSheet, CountDownLatch latch,
             Map<Long, ExerciseConfigVo> exerciseMap) {
         log.info("correct answersheetID: {}", answerSheet.getId());
         final long start = System.currentTimeMillis();
         final List<Answer> answers = answerRepository.findAllByAnswerSheet(answerSheet.getId());
+        log.info("get answers:{}", answers);
         try {
             int totalScore = 0;
             for (Answer answer : answers) {
-                correct(answer, exerciseMap.get(answer.getExerciseConfig()));
+                correctAnswer(answer, exerciseMap.get(answer.getExerciseConfig()));
                 answerRepository.merger(answer);
                 totalScore += answer.getScore();
             }
@@ -63,18 +65,29 @@ public class ExamServiceHelper {
         return AsyncResult.forValue(answerSheet);
     }
 
-    public Answer correct(Answer answer, ExerciseConfigVo exerciseConfig) {
-        log.info("correct answerID: {}", answer.getId());
+    public Answer correctAnswer(Answer answer, ExerciseConfigVo exerciseConfig) {
+        log.info("correctAnswer answerID: {}", answer.getId());
         final long start = System.currentTimeMillis();
-        final ResultWrapper wrapper = jdbcService
-                .excute(exerciseConfig.getExercise().getInputSQL(), answer.getInputSQL());
+        final Exercise exercise = exerciseConfig.getExercise();
+        final ResultWrapper wrapper;
+        final String formatedSQL = JdbcService.formatSQL(answer.getInputSQL());
+        boolean equal = false;
+        if (formatedSQL.equals(exercise.getExpectedData().getFormated())) {
+            equal = true;
+            wrapper = new ResultWrapper();
+            wrapper.setFormated(formatedSQL);
+        } else {
+            wrapper = jdbcService.excute(exercise.getInputSQL(), answer.getInputSQL(),
+                    exercise.isRowOrder(), exercise.isColumnOrder());
+        }
+        log.info("correctAnswer answerID: {}, result:{}", answer.getId(), wrapper);
         answer.setInputData(wrapper);
-        if (wrapper.equals(exerciseConfig.getExercise().getExpectedData())) {
+        if (equal || wrapper.equals(exercise.getExpectedData())) {
             answer.setScore(exerciseConfig.getScore());
         } else {
             answer.setScore(0);
         }
-        log.info("correct answerID: {}, time: {}", answer.getId(), System.currentTimeMillis() - start);
+        log.info("correctAnswer answerID: {}, time: {}", answer.getId(), System.currentTimeMillis() - start);
         return answer;
     }
 

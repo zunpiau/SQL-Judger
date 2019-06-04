@@ -3,8 +3,10 @@ package zunpiau.sqljudger.web.controller;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -216,7 +218,8 @@ public class TeacherController {
 
     @PostMapping("sql/excute")
     public BaseResponse<?> generatInput(@RequestBody SQLExcuteRequest request) throws SQLException {
-        return BaseResponse.ok(jdbcService.excute(request.getSchema(), request.getExcute()));
+        return BaseResponse.ok(jdbcService.excute(request.getSchema(), request.getExcute(),
+                request.isRowOrder(), request.isColumnOrder()));
     }
 
     @ExceptionHandler({ConstraintViolationException.class, SQLException.class})

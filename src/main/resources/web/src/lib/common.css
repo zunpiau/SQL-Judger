@@ -31,6 +31,6 @@ input.score {
 }
 
 .panel {
-    height: calc(100vh - 64px);
+    height: calc(100vh - 124px);
     overflow-y: auto;
 }

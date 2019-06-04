@@ -196,7 +196,7 @@ public class ExamService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @CacheEvict(cacheNames = "exam", allEntries = true)
     public Future<Void> correctAll(Exam exam) {
-        log.info("correct examID: {}", exam.getId());
+        log.info("correctAnswer examID: {}", exam.getId());
         long start = System.currentTimeMillis();
         final List<AnswerSheet> answerSheets = answerSheetRepository.findAllByExam(exam.getId());
         if (!answerSheets.isEmpty()) {
@@ -206,17 +206,16 @@ public class ExamService {
             examRepository.setStatus(exam.getId(), Exam.STATUS_CORRECTING);
             CountDownLatch answerSheetLatch = new CountDownLatch(answerSheets.size());
             for (AnswerSheet answerSheet : answerSheets) {
-                examServiceHelper.correctAsync(answerSheet, answerSheetLatch, exerciseMap);
+                examServiceHelper.correctAnswerSheet(answerSheet, answerSheetLatch, exerciseMap);
             }
             try {
-//            TimeUnit.SECONDS.sleep(10);
                 answerSheetLatch.await();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
         examRepository.setStatus(exam.getId(), Exam.STATUS_CORRECTED);
-        log.info("correct examID: {}, answersheets: {}, time: {}",
+        log.info("correctAnswer examID: {}, answersheets: {}, time: {}",
                 exam.getId(), answerSheets.size(), System.currentTimeMillis() - start);
         return AsyncResult.forValue(null);
     }

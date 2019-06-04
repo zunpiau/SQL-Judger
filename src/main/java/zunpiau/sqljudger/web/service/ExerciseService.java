@@ -57,7 +57,8 @@ public class ExerciseService {
             exercise.setTeacher(teacher);
             try {
                 exercise.setInputData(jdbcService.excuteAndRetrieve(exercise.getInputSQL()));
-                exercise.setExpectedData(jdbcService.excute(exercise.getInputSQL(), exercise.getExpectedSQL()));
+                exercise.setExpectedData(jdbcService.excute(exercise.getInputSQL(), exercise.getExpectedSQL(),
+                        exercise.isRowOrder(), exercise.isColumnOrder()));
             } catch (SQLException e) {
                 e.printStackTrace();
             }

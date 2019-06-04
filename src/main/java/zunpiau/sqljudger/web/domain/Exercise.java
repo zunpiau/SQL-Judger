@@ -57,6 +57,12 @@ public class Exercise implements Serializable {
 
     private int score;
 
+    @Column(name = "row_order")
+    private boolean rowOrder;
+
+    @Column(name = "column_order")
+    private boolean columnOrder;
+
     @Column(length = 2048)
     private String inputSQL;
 

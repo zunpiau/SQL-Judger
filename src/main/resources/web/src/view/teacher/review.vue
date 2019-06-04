@@ -23,12 +23,9 @@
           <div>
             <span class="mt-1 font-weight-bold">SQL代码</span>
             <pre class="code">{{ exerciseConfig.exercise.expectedSQL }}</pre>
-            <span class="mt-1 font-weight-bold">输出可视化</span>
             <ResultWrapper :result-wrapper="exerciseConfig.exercise.expectedData">
 
             </ResultWrapper>
-            <span class="mt-1 font-weight-bold">原始输出</span>
-            <pre class="code">{{ JSON.stringify(exerciseConfig.exercise.expectedData) }}</pre>
           </div>
           <div>
             <span class="mt-1 font-weight-bold">题目描述</span>
@@ -71,12 +68,9 @@
                 <div>
                   <span class="mt-1 font-weight-bold">学生输入</span>
                   <pre class="code">{{ answer.inputSQL }}</pre>
-                  <span class="mt-1 font-weight-bold">输出可视化</span>
                   <ResultWrapper :result-wrapper="answer.inputData">
 
                   </ResultWrapper>
-                  <span class="mt-1 font-weight-bold">原始输出</span>
-                  <pre class="code">{{ JSON.stringify(answer.inputData) }}</pre>
                 </div>
               </div>
               <div v-else>
@@ -107,7 +101,7 @@
 <style>
   .fixed-right-bottom {
     padding-left: 60%;
-    padding-right: 2%;
+    padding-right: 4%;
   }
 </style>
 <script>

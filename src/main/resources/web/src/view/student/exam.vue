@@ -43,7 +43,7 @@
       <span class="navbar-brand ml-3">{{ exam.title }}</span>
       <span class="text-light mr-3 font-weight-bold">
         <countdown :interval="1000" :time="time" @end="onExamFinish" tag="span">
-          <template slot-scope="props">{{ props.minutes }}:{{ props.seconds }}</template>
+          <template slot-scope="props">{{ props.hours }}:{{ props.minutes }}</template>
         </countdown>
       </span>
     </nav>
@@ -232,7 +232,7 @@
                 });
             });
 
-            this.exam.endTime = moment().unix() + 315;
+            // this.exam.endTime = moment().unix() + 315;
             const remain = this.exam.endTime - moment().unix();
             this.time = remain * 1000;
             console.log(remain);

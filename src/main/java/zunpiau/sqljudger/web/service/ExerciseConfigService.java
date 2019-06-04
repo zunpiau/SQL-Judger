@@ -27,7 +27,7 @@ public class ExerciseConfigService {
     }
 
     public List<ExerciseConfigVo> getExercisesForAnswer(TestPaper testPaper) {
-        return getExercises(testPaper, id -> exerciseRepository.findByIdForAnswer(id));
+        return getExercises(testPaper, id -> exerciseRepository.findById(id));
     }
 
     public List<ExerciseConfigVo> getExercisesForStudent(TestPaper testPaper) {

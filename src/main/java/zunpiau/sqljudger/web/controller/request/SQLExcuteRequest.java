@@ -11,5 +11,7 @@ public class SQLExcuteRequest {
 
     private String schema;
     private String excute;
+    private boolean rowOrder;
+    private boolean columnOrder;
 
 }

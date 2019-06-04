@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark p-0 shadow-sm d-flex justify-content-between">
-      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL在线评测</span>
+      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL Judger</span>
       <div>
         <span class="navbar-text text-light mr-3 font-weight-bold">{{ currentTeacher.name }}</span>
         <a class="navbar-text text-light mr-3" href="/view/login.html">退出</a>
@@ -155,6 +155,14 @@
                     </section>
                     <section>
                       <h5 class="h5">期望输出</h5>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" v-model="exercise.rowOrder">
+                        <label class="form-check-label">要求输出结果行顺序</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" v-model="exercise.columnOrder">
+                        <label class="form-check-label">要求输出结果列顺序</label>
+                      </div>
                       <div class="form-group">
                       <textarea class="form-control" placeholder="SQL语句" rows="3"
                                 v-model="exercise.expectedSQL"></textarea>
@@ -617,6 +625,8 @@
                     inputData: null,
                     expectedSQL: "",
                     expectedData: null,
+                    rowOrder: false,
+                    columnOrder: false,
                 },
                 emptyExercise: {
                     id: null,
@@ -847,7 +857,9 @@
             getexpectedData() {
                 axios.post("/teacher/sql/excute", {
                     schema: this.exercise.inputSQL,
-                    excute: this.exercise.expectedSQL
+                    excute: this.exercise.expectedSQL,
+                    columnOrder: this.exercise.columnOrder,
+                    rowOrder: this.exercise.rowOrder,
                 }, {
                     headers: {
                         'Content-Type': 'application/json'
