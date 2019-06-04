@@ -40,13 +40,9 @@
 </style>
 <template>
   <div>
-    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow-sm">
-      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL在线评测</span>
-    </nav>
-
     <main class="container-fluid" role="main">
       <form action="/login" class="form-signin text-center" id="form" method="post">
-        <h1 class="h3 mb-3 font-weight-normal">SQL Judger</h1>
+        <h1 class="h3 mb-5 font-weight-normal">SQL Judger</h1>
         <input class="form-control" name="number" placeholder="学号/教工号" required type="text">
         <input class="form-control" name="password" placeholder="密码" required type="password">
         <div class="form-check-inline mt-2">

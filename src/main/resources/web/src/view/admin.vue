@@ -3,7 +3,7 @@
 <template>
   <div>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow-sm">
-      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL在线评测</span>
+      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL实验测验系统</span>
       <span class="navbar-text text-light mr-3 font-weight-bold">管理员</span>
     </nav>
     <div class="container-fluid">

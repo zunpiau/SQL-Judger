@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark p-0 shadow-sm d-flex justify-content-between">
-      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL在线评测</span>
+      <span class="navbar-brand col-sm-3 col-md-2 mr-0">SQL Judger</span>
       <div>
         <span class="navbar-text text-light mr-3 font-weight-bold">{{ currentStudent.name }}</span>
         <a class="navbar-text text-light mr-3" href="/view/login.html">退出</a>
@@ -13,7 +13,7 @@
           <div class="sidebar-sticky">
             <nav class="nav nav-pills flex-column" id="nav_tabs">
               <a class="nav-link" data-toggle="pill" href="#home" role="tab">
-                Dashboard
+                概览
               </a>
               <a class="nav-link active" data-toggle="pill" href="#exam" role="tab">
                 考试安排
@@ -24,8 +24,9 @@
 
         <main class="col-md-9 ml-sm-auto col-lg-10 px-4 tab-content" role="main">
           <div class="tab-pane fade show" id="home" role="tabpanel">
-            <h2 class="h2 mb-3">Dashboard</h2>
-            <h3 class="h3">Section title</h3>
+            <h2 class="h2 mb-3">概览</h2>
+            <h3 class="h3"></h3>
+            <p>欢迎回来，{{ currentStudent.name }}</p>
           </div>
           <div class="tab-pane fade show active" id="exam" role="tabpanel">
             <h2 class="h2 mb-3">考试安排</h2>
